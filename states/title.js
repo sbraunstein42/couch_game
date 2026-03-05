@@ -4,6 +4,7 @@ export class Title {
 
     context;
     titleAnim;
+    command;
 
     constructor(context) {
         this.context = context;
@@ -20,13 +21,13 @@ export class Title {
         // document.addEventListener("keypress", this.onKeyPressed )
         // document.addEventListener("click", this.onClicked)
 
-        let titleSprites = this.context.model.titleAnim;
-        this.titleAnim = new Sprite(this.context, titleSprites[0], this.context.model.spriteScale);
+        let titleSpriteIds = this.context.model.titleAnim;
+        this.titleAnim = new Sprite(this.context, titleSpriteIds[0], this.context.model.spriteScale);
         
             // play(pathsForAnimationFrames, fps, loops) {
 
-        this.titleAnim.play(titleSprites, 1, 5, () => {
-            print("DONE!")
+        this.titleAnim.play(titleSpriteIds, 4, 1, () => {
+            this.command = "game"
         })
 
     }
@@ -72,6 +73,8 @@ export class Title {
         // }
 
         // return "game"
+
+        return this.command;
     }
 
 

@@ -3,11 +3,22 @@ export class Sprite {
     context;
     currentImage;
     scale;
+    
+    x; 
+    y;
+    
     width;
     height;
 
+    xPivotPhase = .5;
+    yPivotPhase = .5;
+
+    showBounds;
+
+
+
     //alternatively, can animate
-    pathsForAnimationFrames;
+    idsForAnimationFrames;
     loopsRemaining;
     loopLengthMS;
     animationId;
@@ -18,13 +29,15 @@ export class Sprite {
     constructor(context, path, scale) {
 
         this.draw = this.draw.bind(this);
-        this.setPath = this.setPath.bind(this);
+        this.setSprite = this.setSprite.bind(this);
         this.play = this.play.bind(this);
         this.stop = this.stop.bind(this);
         this.onAnimationFrame = this.onAnimationFrame.bind(this);
+        this.setPivot = this.setPivot.bind(this);
+        this.getBounds = this.getBounds.bind(this);
 
         this.currentImage = new Image();
-        this.setPath(path);
+        this.setSprite(path);
         this.context = context;
         this.scale = scale;
 
@@ -32,17 +45,71 @@ export class Sprite {
         this.height = this.currentImage.naturalHeight * this.scale;
     }
 
-    setPath(path) {
-        this.currentImage.src = path;
+    setSprite(id) {
+        this.currentImage = document.getElementById(id);
+    }
+
+    setPivot(xPivotPhase, yPivotPhase) {
+        this.xPivotPhase = xPivotPhase;
+        this.yPivotPhase = yPivotPhase;
     }
 
     draw(x, y) {
-        this.context.pencil.drawImage(this.currentImage, x, y, this.width, this.height);
+        this.x = x - (this.width * this.xPivotPhase);
+        this.y = y - (this.height * this.yPivotPhase);
+        this.context.pencil.drawImage(this.currentImage, this.x, this.y, this.width, this.height);
+    
+        if(this.showBounds) {
+            let markerSize = 10;
+            let bounds = this.getBounds()
+            let oldFillStyle = this.context.pencil.fillStyle;
+            let oldStrokeStyle = this.context.pencil.strokeStyle;
+            let oldLineWidth = this.context.pencil.lineWidth;
+            
+            this.context.pencil.strokeStyle = "#6565f34e"
+            this.context.pencil.lineWidth = markerSize/4;
+
+            this.context.pencil.beginPath();
+            this.context.pencil.moveTo(bounds.x.min, bounds.y.min);
+            this.context.pencil.lineTo(bounds.x.max, bounds.y.max);
+            this.context.pencil.moveTo(bounds.x.min, bounds.y.max);
+            this.context.pencil.lineTo(bounds.x.max, bounds.y.min);
+            this.context.pencil.moveTo(bounds.x.min, bounds.y.min);
+            this.context.pencil.lineTo(bounds.x.max, bounds.y.min);
+            this.context.pencil.lineTo(bounds.x.max, bounds.y.max);
+            this.context.pencil.lineTo(bounds.x.min, bounds.y.max);
+            this.context.pencil.lineTo(bounds.x.min, bounds.y.min);
+
+            this.context.pencil.stroke(); 
+            this.context.pencil.closePath();
+
+            this.context.pencil.fillStyle = "#ffda37a9"; // Set color to blue using hex code
+            this.context.pencil.fillRect(x - markerSize, y - markerSize, markerSize * 2, markerSize * 2); // Draw a filled rectangle at (10, 10) with 100px width and 50px height
+            
+            this.context.pencil.fillStyle = "#2c2cffc8"; // Set color to blue using hex code
+            
+            this.context.pencil.fillRect(bounds.x.min - (markerSize/2), bounds.y.min - (markerSize/2), markerSize, markerSize); // Draw a filled rectangle at (10, 10) with 100px width and 50px height
+            this.context.pencil.fillRect(bounds.x.min - (markerSize/2), bounds.y.max - (markerSize/2), markerSize, markerSize); // Draw a filled rectangle at (10, 10) with 100px width and 50px height
+            this.context.pencil.fillRect(bounds.x.max - (markerSize/2), bounds.y.min - (markerSize/2), markerSize, markerSize); // Draw a filled rectangle at (10, 10) with 100px width and 50px height
+            this.context.pencil.fillRect(bounds.x.max - (markerSize/2), bounds.y.max - (markerSize/2), markerSize, markerSize); // Draw a filled rectangle at (10, 10) with 100px width and 50px height
+            
+            this.context.pencil.fillStyle = oldFillStyle;
+            this.context.pencil.strokeStyle = oldStrokeStyle;
+            this.context.pencil.lineWidth = oldLineWidth;
+        }
+    
     }
 
-    play(pathsForAnimationFrames, fps, loops, onComplete) {
-        this.pathsForAnimationFrames = pathsForAnimationFrames;
-        this.loopLengthMS = (1/fps) * pathsForAnimationFrames.length * 1000;
+    getBounds() {
+        return {
+            x : {min : this.x, max : this.x + this.width},
+            y : {min : this.y, max: this.y + this.height}
+        }
+    }
+
+    play(idsForAnimationFrame, fps, loops, onComplete) {
+        this.idsForAnimationFrames = idsForAnimationFrame;
+        this.loopLengthMS = (1/fps) * idsForAnimationFrame.length * 1000;
         this.loops = loops ?? 0;
         this.playStartTimeMS = performance.now();
         this.onComplete = onComplete;
@@ -60,10 +127,11 @@ export class Sprite {
 
         let elapsedMS = (timeStamp - this.playStartTimeMS) % this.loopLengthMS;
         let phase = elapsedMS/this.loopLengthMS;
-        let index = this.context.toolbox.lerp(0, this.pathsForAnimationFrames.length - .001, phase);
+        let index = this.context.toolbox.lerp(0, this.idsForAnimationFrames.length - .001, phase);
         index = Math.floor(index);
         let isNewFrame = this.previousIndex !== index;
         let isNewLoop = isNewFrame && index == 0;
+
         if(isNewLoop) {
             this.loops--;
             if(this.loops == 0) {
@@ -75,8 +143,9 @@ export class Sprite {
                 return;
             }
         }
-        this.setPath(this.pathsForAnimationFrames[index])
 
+        this.setSprite(this.idsForAnimationFrames[index])
+        this.previousIndex = index;
         this.animationId = requestAnimationFrame(this.onAnimationFrame)
     }
 

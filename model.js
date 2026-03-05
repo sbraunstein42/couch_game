@@ -9,30 +9,30 @@ export class Model {
 
 
     sittables = new Deck([
-        "sprites/sittables/balloon.png",
-        "sprites/sittables/cake.png",
-        "sprites/sittables/car.png",
-        "sprites/sittables/earth.png",
-        "sprites/sittables/hamburger.png",
-        "sprites/sittables/turtle.png",
+        // "sittable_balloon",
+        "sittable_cake",
+        "sittable_car",
+        "sittable_earth",
+        "sittable_hamburger",
+        "sittable_turtle",
     ])
 
     people = new Deck([
-        "sprites/people/fish.png",
-        "sprites/people/green.png",
-        "sprites/people/pink.png",
-        "sprites/people/robot.png"
+        "people_fish",
+        "people_green",
+        "people_pink",
+        "people_robot"
     ]);
 
     couches = new Deck([
-        "sprites/couches/orange.png"
+        "couch_orange"
     ]);
 
     titleAnim = [
-        "/sprites/title/title1.png",
-        "/sprites/title/title2.png",
-        "/sprites/title/title3.png",
-        "/sprites/title/title4.png",
+        "title1",
+        "title2",
+        "title3",
+        "title4",
     ];
 
     constructor() {

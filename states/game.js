@@ -5,7 +5,12 @@ export class Game {
 
     context; 
     sittables;
+    people;
     couch;
+    sittableWidth;
+    sittableHeight;
+    peopleWidth;
+    peopleHeight;
 
 
     constructor(context) {
@@ -18,26 +23,56 @@ export class Game {
         console.log("Entered game.")
 
         this.sittables = [];
+        this.people = [];
 
-        const sittablePaths = this.context.model.getRandomSittables(4);
-        for(let i = 0; i < sittablePaths.length; i++) {
-            let path = sittablePaths[i];
-            let sprite = new Sprite(this.context, path, this.context.model.spriteScale);
+        const sittableIds = this.context.model.getRandomSittables(4);
+        for(let i = 0; i < sittableIds.length; i++) {
+            let id = sittableIds[i];
+            let sprite = new Sprite(this.context, id, this.context.model.spriteScale);
+            // sprite.showBounds = true;
             this.sittables.push(sprite);
         }
 
-        const couchPath = this.context.model.getRandomCouch();
-        this.couch = new Sprite(this.context, couchPath, this.context.model.spriteScale)
+        this.sittableWidth = this.sittables[0].width;
+        this.sittableHeight = this.sittables[0].height;
+
+        const couchId = this.context.model.getRandomCouch();
+        this.couch = new Sprite(this.context, couchId, this.context.model.spriteScale)
+        // this.couch.showBounds = true;
+
+        const peopleIds = this.context.model.getRandomPeople(4);
+        for(let i = 0; i < peopleIds.length; i++) {
+            let id = peopleIds[i];
+            let sprite = new Sprite(this.context, id, this.context.model.spriteScale);
+            // sprite.showBounds = true;
+            this.people.push(sprite);
+        }
+
+        this.peopleWidth = this.people[0].width;
+        this.peopleHeight = this.people[0].height;
+
     }
 
     update() {
-        console.log(this.context.deltaTimeMS)
+        let middleX = this.context.canvas.width /2;
+        let middleY = this.context.canvas.height /2;
 
+        this.couch.draw(middleX, middleY);
+
+        let couchBounds = this.couch.getBounds();
+        let onCouchY = couchBounds.y.max - (this.couch.height * .5) - (this.sittableHeight * .5)
+        let sittableGap = this.context.model.spriteScale * 12.25;
+        let currX = this.couch.x + (this.couch.width * .2);
         for(let i = 0; i < this.sittables.length; i++) {
-            this.sittables[i].draw(i * 100, 10);
+            this.sittables[i].draw(currX, onCouchY);
+            currX += sittableGap;
         }
-        this.couch.draw(200, 200);
 
+        let peopleGap = this.context.model.spriteScale * 15;
+        let peopleWaitingY = this.context.canvas.height - (this.peopleHeight * .6);
+        for(let i = 0; i < this.people.length; i++) {
+            this.people[i].draw((i + 1) * peopleGap, peopleWaitingY)
+        }
     }
 
     

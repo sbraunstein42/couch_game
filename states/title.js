@@ -18,15 +18,13 @@ export class Title {
 
     enter() {
         console.log("Entered title.");
-        // document.addEventListener("keypress", this.onKeyPressed )
-        // document.addEventListener("click", this.onClicked)
 
         let titleSpriteIds = this.context.model.titleAnim;
         this.titleAnim = new Sprite(this.context, titleSpriteIds[0], this.context.model.spriteScale);
-        
-            // play(pathsForAnimationFrames, fps, loops) {
+        this.titleAnim.showBounds = true;
 
-        this.titleAnim.play(titleSpriteIds, 4, 1, () => {
+        // play(pathsForAnimationFrames, fps, loops, onComplete) {
+        this.titleAnim.play(titleSpriteIds, 1, 1, () => {
             this.command = "game"
         })
 
@@ -52,7 +50,9 @@ export class Title {
     // }
 
     update() {
-        this.titleAnim.draw(0, 0);
+        let middleX = this.context.canvas.width / 2;
+        let middleY = this.context.canvas.height / 2;
+        this.titleAnim.draw(middleX, middleY);
         // // this.pencil.fillStyle = "gray";
         // // this.pencil.font = "20px Georgia";
         // // this.pencil.fillText("Title", 10, 50);

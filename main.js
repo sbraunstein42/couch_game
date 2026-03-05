@@ -27,7 +27,7 @@ let states = {
 }
 
 //enter title
-let currentState = states.game;
+let currentState = states.title;
 currentState.enter();
 
 function gameLoop(timeStamp) {

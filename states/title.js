@@ -1,11 +1,16 @@
-import { Toolbox } from "../helpers/toolbox.js";
+import { Sprite } from "../helpers/sprite.js";
 
 export class Title {
 
     context;
+    titleAnim;
 
     constructor(context) {
         this.context = context;
+
+        this.enter = this.enter.bind(this);
+        this.exit = this.exit.bind(this);
+        this.update = this.update.bind(this);
 
         
     }
@@ -14,6 +19,16 @@ export class Title {
         console.log("Entered title.");
         // document.addEventListener("keypress", this.onKeyPressed )
         // document.addEventListener("click", this.onClicked)
+
+        let titleSprites = this.context.model.titleAnim;
+        this.titleAnim = new Sprite(this.context, titleSprites[0], this.context.model.spriteScale);
+        
+            // play(pathsForAnimationFrames, fps, loops) {
+
+        this.titleAnim.play(titleSprites, 1, 5, () => {
+            print("DONE!")
+        })
+
     }
 
     exit() {
@@ -36,6 +51,7 @@ export class Title {
     // }
 
     update() {
+        this.titleAnim.draw(0, 0);
         // // this.pencil.fillStyle = "gray";
         // // this.pencil.font = "20px Georgia";
         // // this.pencil.fillText("Title", 10, 50);
@@ -55,7 +71,7 @@ export class Title {
         //     return "game";
         // }
 
-        return "game"
+        // return "game"
     }
 
 

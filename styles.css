@@ -1,7 +1,7 @@
 body {
-    background-color: black;
+    background-color: white;
 }
 
 #myCanvas {
-    border: 10px solid gray;
+    border: 2px solid gray;
 }

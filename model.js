@@ -5,6 +5,8 @@ export class Model {
     spotsOnCouch = 4;
     empty = "empty";
     couchState;
+    spriteScale = 10;
+
 
     sittables = new Deck([
         "sprites/sittables/balloon.png",
@@ -25,6 +27,13 @@ export class Model {
     couches = new Deck([
         "sprites/couches/orange.png"
     ]);
+
+    titleAnim = [
+        "/sprites/title/title1.png",
+        "/sprites/title/title2.png",
+        "/sprites/title/title3.png",
+        "/sprites/title/title4.png",
+    ];
 
     constructor() {
         this.couchState = [];

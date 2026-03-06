@@ -66,7 +66,7 @@ export class Toolbox {
     getDistance(a, b) {
         let dx = a.x - b.x;
         let dy = a.y - b.y;
-        return Math.sqrt(dx*dx + dy*dy);
+        return Math.abs(Math.sqrt(dx*dx + dy*dy));
     }
 
     isWithinCircle(circleX, circleY, circleRadius, myX, myY) {

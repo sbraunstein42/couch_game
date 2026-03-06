@@ -13,7 +13,8 @@ let context = {
     pencil : canvas.getContext("2d"), 
     toolbox : new Toolbox(),
     model : new Model(),
-    deltaTimeMS : 0
+    deltaTimeMS : 0,
+    tweens : []
 }
 
 //pixel art please
@@ -31,12 +32,14 @@ let currentState = states.game;
 currentState.enter();
 
 function gameLoop(timeStamp) {
-
     context.deltaTimeMS = timeStamp - lastTime;
     lastTime = timeStamp;
     context.pencil.clearRect(0,0, canvas.width, canvas.height);
     
     let command = currentState.update();
+
+    context.tweens = context.tweens.filter(x => x._isPlaying);
+    context.tweens.forEach(x => x.update());
 
     if(command) {
         currentState.exit();
@@ -45,6 +48,8 @@ function gameLoop(timeStamp) {
         currentState.enter();
     }
     gameLoopId = requestAnimationFrame(gameLoop);
+
+
 }
 
 gameLoopId = requestAnimationFrame(gameLoop);

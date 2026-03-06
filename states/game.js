@@ -1,6 +1,5 @@
-import { Toolbox } from "../helpers/toolbox.js";
 import { Sprite } from "../helpers/sprite.js";
-import * as TWEEN from "../helpers/tween.esm.js";
+import { Person } from "../helpers/person.js";
 
 export class Game {
 
@@ -12,6 +11,13 @@ export class Game {
     sittableHeight;
     peopleWidth;
     peopleHeight;
+
+    peopleCount = 1;
+    sittablesCount = 1;
+
+
+    ball = { x: 50, y: 100, radius: 30 };
+    tweens = [];
 
 
     constructor(context) {
@@ -26,7 +32,7 @@ export class Game {
         this.sittables = [];
         this.people = [];
 
-        const sittableIds = this.context.model.getRandomSittables(4);
+        const sittableIds = this.context.model.getRandomSittables(this.sittablesCount);
         for(let i = 0; i < sittableIds.length; i++) {
             let id = sittableIds[i];
             let sprite = new Sprite(this.context, id, this.context.model.spriteScale);
@@ -40,11 +46,11 @@ export class Game {
         const couchId = this.context.model.getRandomCouch();
         this.couch = new Sprite(this.context, couchId, this.context.model.spriteScale)
         // this.couch.showBounds = true;
-
-        const peopleIds = this.context.model.getRandomPeople(4);
+        
+        const peopleIds = this.context.model.getRandomPeople(this.peopleCount);
         for(let i = 0; i < peopleIds.length; i++) {
             let id = peopleIds[i];
-            let sprite = new Sprite(this.context, id, this.context.model.spriteScale);
+            let sprite = new Person(this.context, id, this.context.model.spriteScale);
             // sprite.showBounds = true;
             this.people.push(sprite);
         }
@@ -52,59 +58,44 @@ export class Game {
         this.peopleWidth = this.people[0].width;
         this.peopleHeight = this.people[0].height;
 
-
-
-
-
-        const ball = { x: 50, y: 100, radius: 30 };
-        const pencil = this.context.pencil;
-        const canvas = this.context.canvas;
-
-        new TWEEN.Tween(ball)
-            .to({ x: 550 }, 2000)
-            .easing(TWEEN.Easing.Bounce.Out)
-            .repeat(Infinity)
-            .yoyo(true)          // ping-pong back and forth
-            .start();
-
-        function animate(time) {
-            console.log(time)
-            TWEEN.update(time);
-
-            pencil.clearRect(0, 0, canvas.width, canvas.height);
-
-            pencil.beginPath();
-            pencil.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-            pencil.fillStyle = '#e74c3c';
-            pencil.fill();
-
-            requestAnimationFrame(animate);
-        }
-
-        requestAnimationFrame(animate);
-
-
-    }
-
-    update() {
         let middleX = this.context.canvas.width /2;
         let middleY = this.context.canvas.height /2;
-
-        this.couch.draw(middleX, middleY);
+        this.couch.setPosition(middleX, middleY);
 
         let couchBounds = this.couch.getBounds();
         let onCouchY = couchBounds.y.max - (this.couch.height * .5) - (this.sittableHeight * .5)
         let sittableGap = this.context.model.spriteScale * 12.25;
-        let currX = this.couch.x + (this.couch.width * .2);
+        let currX = this.couch.x + (this.context.model.spriteScale * 1);
         for(let i = 0; i < this.sittables.length; i++) {
-            this.sittables[i].draw(currX, onCouchY);
             currX += sittableGap;
+            this.sittables[i].setPosition(currX, onCouchY);
+        }
+
+        let peopleGap = this.context.model.spriteScale * 15;
+        let peopleWaitingY = this.context.canvas.height - (this.peopleHeight * .6);
+        
+        for(let i = 0; i < this.people.length; i++) {
+            let finalX = (i + 1) * peopleGap;
+            this.people[i].setPosition(finalX - 300, peopleWaitingY);
+            this.people[i].hopTo(finalX, peopleWaitingY, 2000, 10);
+        }
+
+        
+
+    }
+
+    update() {
+
+        this.couch.draw();
+
+        for(let i = 0; i < this.sittables.length; i++) {
+            this.sittables[i].draw();
         }
 
         let peopleGap = this.context.model.spriteScale * 15;
         let peopleWaitingY = this.context.canvas.height - (this.peopleHeight * .6);
         for(let i = 0; i < this.people.length; i++) {
-            this.people[i].draw((i + 1) * peopleGap, peopleWaitingY)
+            this.people[i].draw()
         }
     }
 

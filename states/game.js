@@ -1,5 +1,6 @@
 import { Toolbox } from "../helpers/toolbox.js";
-import { Sprite } from "../helpers/sprite.js"
+import { Sprite } from "../helpers/sprite.js";
+import * as TWEEN from "../helpers/tween.esm.js";
 
 export class Game {
 
@@ -50,6 +51,38 @@ export class Game {
 
         this.peopleWidth = this.people[0].width;
         this.peopleHeight = this.people[0].height;
+
+
+
+
+
+        const ball = { x: 50, y: 100, radius: 30 };
+        const pencil = this.context.pencil;
+        const canvas = this.context.canvas;
+
+        new TWEEN.Tween(ball)
+            .to({ x: 550 }, 2000)
+            .easing(TWEEN.Easing.Bounce.Out)
+            .repeat(Infinity)
+            .yoyo(true)          // ping-pong back and forth
+            .start();
+
+        function animate(time) {
+            console.log(time)
+            TWEEN.update(time);
+
+            pencil.clearRect(0, 0, canvas.width, canvas.height);
+
+            pencil.beginPath();
+            pencil.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            pencil.fillStyle = '#e74c3c';
+            pencil.fill();
+
+            requestAnimationFrame(animate);
+        }
+
+        requestAnimationFrame(animate);
+
 
     }
 

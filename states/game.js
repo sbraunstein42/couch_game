@@ -24,9 +24,13 @@ export class Game {
 
     //state
     howManyPeopleSatDown = 0;
-    isSitRequested = false;
     tweens = [];
     sprites = [];
+    personPositionIndex;
+    itemsByIndex;
+
+
+    isWaitingForSit = false;
 
     //layers
     renderOrders = {
@@ -44,6 +48,8 @@ export class Game {
         this.enter = this.enter.bind(this);
         this.gameRoutine = this.gameRoutine.bind(this);
         this.onPlayerRequestedSit = this.onPlayerRequestedSit.bind(this);
+        this.shiftItemsRoutine = this.shiftItemsRoutine.bind(this);
+        this.shiftPeopleRoutine = this.shiftPersonRoutine.bind(this);
     }
 
     enter() {
@@ -109,29 +115,52 @@ export class Game {
     }
 
     onPlayerRequestedSit() {
-        this.isSitRequested = true;
+        this.isWaitingForSit = false;
     }
 
-    async shiftItemsRoutine() {
-            
-    }
-
-    async shiftPeopleRoutine(sec) {
-            
+    async shiftItemsRoutine(sec) {
         let shifts = 0;
 
-        while(this.isRotatingItems) {
-
+        while(this.isWaitingForSit) {
             //remove filled positions
             let emptyPositionsOnCouch = this.positionsOnCouch.filter((x, i) => {
                 return this.context.model.isCouchSpotEmpty(i);
             });
             if(emptyPositionsOnCouch.length < this.thingsYouCanSitOn.length) {
-                throw new Error("Too many items, not enough spaces?");
+                throw new Error("Too many items, not enfough spaces?");
+            }
+            this.itemsByIndex = {};
+            for(let j = 0; j < this.thingsYouCanSitOn.length; j++) {
+                let thing = this.thingsYouCanSitOn[j];
+                let posOnCouchIndex = (j + shifts) % emptyPositionsOnCouch.length;
+                this.itemsByIndex[posOnCouchIndex] = thing.currentImage.id;
+                let posOnCouch = emptyPositionsOnCouch[posOnCouchIndex];
+                thing.hopTo(posOnCouch.x, posOnCouch.y, sec * .5, 1);
             }
 
-            let posBelowCouchIndex = (this.positionsBelowCouch.length-1) - (shifts % this.positionsOnCouch.length);
-            let posBelowCouch = this.positionsBelowCouch[posBelowCouchIndex];
+            await this.context.toolbox.waitForMS(sec);
+            shifts++;
+        }
+
+    }
+
+    async shiftPersonRoutine(person, sec) {
+            
+        let shifts = 0;
+
+        while(this.isWaitingForSit) {
+
+            //remove filled positions
+            let emptyPositionsBelowCouch = this.positionsBelowCouch.filter((x, i) => {
+                return this.context.model.isCouchSpotEmpty(i);
+            });
+
+            // this.personPositionIndex = (this.positionsBelowCouch.length-1) - (shifts % this.positionsOnCouch.length);
+            this.personPositionIndex = (emptyPositionsBelowCouch.length-1) - (shifts % emptyPositionsBelowCouch.length);
+            let posBelowCouch = emptyPositionsBelowCouch[this.personPositionIndex];
+            console.log(this.personPositionIndex);
+            console.log(emptyPositionsBelowCouch);
+            console.log(posBelowCouch);
             person.hopTo(posBelowCouch.x, posBelowCouch.y, sec * .25, 1);
 
             await this.context.toolbox.waitForMS(sec);
@@ -157,8 +186,6 @@ export class Game {
         }
         await this.context.toolbox.waitForMS(sec * 2);
 
-        
-
         //let people sit one by one
         for(let i = 0; i < this.people.length; i++) {
 
@@ -168,49 +195,27 @@ export class Game {
             await this.context.toolbox.waitForMS(sec);
 
             //rotate items through couch positions
-            let isRotatingItems = true;
-
-            this.shiftPeopleRoutine();
-            this.shiftItemsRoutine();
-
-            while(isRotatingItems) {
-
-
+            this.isWaitingForSit = true;
+            this.shiftPersonRoutine(person, sec);
+            this.shiftItemsRoutine(sec * .5);
             
-                //remove filled positions
-                let emptyPositionsOnCouch = this.positionsOnCouch.filter((x, i) => {
-                    return this.context.model.isCouchSpotEmpty(i);
-                });
-                if(emptyPositionsOnCouch.length < this.thingsYouCanSitOn.length) {
-                    throw new Error("Too many items, not enough spaces?");
-                }
-                for(let j = 0; j < this.thingsYouCanSitOn.length; j++) {
-                    let thing = this.thingsYouCanSitOn[j];
-                    let posOnCouchIndex = (j + shifts) % emptyPositionsOnCouch.length;
-                    let posOnCouch = emptyPositionsOnCouch[posOnCouchIndex];
-                    thing.hopTo(posOnCouch.x, posOnCouch.y, sec * .5, 1);
-                }
-
-                let posBelowCouchIndex = (this.positionsBelowCouch.length-1) - (shifts % this.positionsOnCouch.length);
-                let posBelowCouch = this.positionsBelowCouch[posBelowCouchIndex];
-                person.hopTo(posBelowCouch.x, posBelowCouch.y, sec * .25, 1);
-
-                await this.context.toolbox.waitForMS(sec);
-                shifts++;
-
-                if(this.isSitRequested) {
-                    //cause player to sit!
-                    isRotatingItems = false;
-                    this.isSitRequested = false; //reset this
-                    let onCouchPos = this.positionsOnCouch[posBelowCouchIndex];
-                    person.hopTo(onCouchPos.x, onCouchPos.y, sec * .5, 4);
-                    await this.context.toolbox.waitForMS(sec);
-                    this.context.model.setPersonInCouchIndex(posBelowCouchIndex, person.currentImage.id);
-                    person.renderOrder = this.renderOrders.sittingOnCouch;
-                    this.sortSprites();
-                }
-
+            while(this.isWaitingForSit) {
+                await this.context.toolbox.waitForMS(100);
             }
+
+            //cause player to sit!
+            let idOfItemThatWasSatOn = this.itemsByIndex[this.personPositionIndex];
+            if(idOfItemThatWasSatOn) {
+                let itemSatOn = this.thingsYouCanSitOn.find(x => x.currentImage.id == idOfItemThatWasSatOn)
+                console.log(itemSatOn);
+            }
+
+            let onCouchPos = this.positionsOnCouch[this.personPositionIndex];
+            person.hopTo(onCouchPos.x, onCouchPos.y, sec * .5, 4);
+            await this.context.toolbox.waitForMS(sec);
+            this.context.model.setPersonInCouchIndex(this.personPositionIndex, person.currentImage.id);
+            person.renderOrder = this.renderOrders.sittingOnCouch;
+            this.sortSprites();
 
             //faster next
         }

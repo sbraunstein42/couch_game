@@ -29,7 +29,6 @@ let states = {
 
 //enter title
 let currentState = states.game;
-currentState.enter();
 
 function gameLoop(timeStamp) {
     context.deltaTimeMS = timeStamp - lastTime;
@@ -52,4 +51,11 @@ function gameLoop(timeStamp) {
 
 }
 
-gameLoopId = requestAnimationFrame(gameLoop);
+//start the game only when everything is loaded
+let startLoad = Date.now();
+
+window.onload = function() {
+    console.log("Loaded in " + (Date.now() - startLoad) + "ms.");
+    currentState.enter();
+    gameLoopId = requestAnimationFrame(gameLoop);
+};

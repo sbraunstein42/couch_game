@@ -2,11 +2,13 @@ import { Deck } from "./helpers/deck.js";
 
 export class Model {
 
-    spotsOnCouch = 4;
     empty = "empty";
-    couchState;
+    peopleOnCouch = [];
     spriteScale = 10;
 
+    howManyContestants = 4;
+    howManyThingsOnCouch = 1;
+    howManySpotsOnCouch = 4;
 
     sittables = new Deck([
         // "sittable_balloon",
@@ -36,10 +38,22 @@ export class Model {
     ];
 
     constructor() {
-        this.couchState = [];
-        for(let i = 0; i < this.spotsOnCouch; i++) {
-            this.couchState.push(this.empty);
+
+        this.setPersonInCouchIndex = this.setPersonInCouchIndex.bind(this);
+        this.isCouchSpotEmpty = this.isCouchSpotEmpty.bind(this);
+
+        this.peopleOnCouch = [];
+        for(let i = 0; i < this.howManySpotsOnCouch; i++) {
+            this.peopleOnCouch.push(this.empty);
         }
+    }
+
+    setPersonInCouchIndex(index, personId) {
+        this.peopleOnCouch[index] = personId;
+    }
+
+    isCouchSpotEmpty(index) {
+        return this.peopleOnCouch[index] == this.empty;
     }
 
     getRandomSittables(howMany) {

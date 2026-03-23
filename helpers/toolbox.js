@@ -13,6 +13,10 @@ export class Toolbox {
         return array[randomIndex];
     }
 
+    getRandomInRange(minInclusive, maxExclusive) {
+        return this.lerp(minInclusive, maxExclusive, Math.random());
+    }
+
     lerp(a, b, t) {
         if(a > b) {
             let temp = a;
@@ -91,4 +95,12 @@ export class Toolbox {
         else return true;
     }
 
+
+    waitForMS(ms) {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+            resolve("resolved");
+            }, ms);
+        });
+    }
 }

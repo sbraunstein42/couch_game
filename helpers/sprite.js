@@ -15,6 +15,8 @@ export class Sprite {
 
     showBounds;
 
+    renderOrder = 0;
+
 
 
     //alternatively, can animate
@@ -38,6 +40,8 @@ export class Sprite {
         this.setX = this.setX.bind(this);
         this.setY = this.setY.bind(this);
         this.setPosition = this.setPosition.bind(this);
+        this.getPivotXOffset = this.getPivotXOffset.bind(this);
+        this.getPivotYOffset = this.getPivotYOffset.bind(this);
 
         this.currentImage = new Image();
         this.setSprite(path);
@@ -46,6 +50,7 @@ export class Sprite {
 
         this.width = this.currentImage.naturalWidth * this.scale;
         this.height = this.currentImage.naturalHeight * this.scale;
+
 
         this.x = this.context.canvas.width/2;
         this.y = this.context.canvas.height/2
@@ -65,12 +70,23 @@ export class Sprite {
         this.setY(y);
     }
 
+    //if a sprite is 50x40 and pivot is in the middle, then the offest is the distance from the top left to the middle.
+    //this function will return {x : 25, y : 20}. this is useful for animating when you
+    //want to take the pivots out of the position and just adjust the positions raw
+    getPivotXOffset() {
+        return this.width * this.xPivotPhase;
+    }
+
+    getPivotYOffset() {
+        return this.height * this.yPivotPhase;
+    }
+
     setX(x) {
-        this.x = x - (this.width * this.xPivotPhase);
+        this.x = x - this.getPivotXOffset();
     }
 
     setY(y) {
-        this.y = y - (this.height * this.yPivotPhase);
+        this.y = y - this.getPivotYOffset();
     }
 
     draw() {
@@ -101,7 +117,12 @@ export class Sprite {
             this.context.pencil.closePath();
 
             this.context.pencil.fillStyle = "#ffda37a9"; // Set color to blue using hex code
-            this.context.pencil.fillRect(this.x - markerSize, this.y - markerSize, markerSize * 2, markerSize * 2); // Draw a filled rectangle at (10, 10) with 100px width and 50px height
+            this.context.pencil.fillRect(
+                this.x - markerSize + this.getPivotXOffset(), 
+                this.y - markerSize + this.getPivotYOffset(), 
+                markerSize * 2, 
+                markerSize * 2
+            ); // Draw a filled rectangle at (10, 10) with 100px width and 50px height
             
             this.context.pencil.fillStyle = "#2c2cffc8"; // Set color to blue using hex code
             

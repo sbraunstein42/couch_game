@@ -121,11 +121,22 @@ export class Game {
     async shiftItemsRoutine(sec) {
         let shifts = 0;
 
+        let emptyPositionsOnCouch = this.positionsOnCouch.filter((x, i) => {
+            return this.context.model.isCouchSpotEmpty(i);
+        });
+
+        if(emptyPositionsOnCouch.length == 1) {
+            let behindPos = {
+                x: emptyPositionsOnCouch[0].x,
+                y: emptyPositionsOnCouch[0].y,
+                isBehind : true,
+            }
+            emptyPositionsOnCouch.push(behindPos)
+        }
+
         while(this.isWaitingForSit) {
             //remove filled positions
-            let emptyPositionsOnCouch = this.positionsOnCouch.filter((x, i) => {
-                return this.context.model.isCouchSpotEmpty(i);
-            });
+            
             if(emptyPositionsOnCouch.length < this.thingsYouCanSitOn.length) {
                 throw new Error("Too many items, not enfough spaces?");
             }
@@ -135,7 +146,12 @@ export class Game {
                 let posOnCouchIndex = (j + shifts) % emptyPositionsOnCouch.length;
                 this.itemsByIndex[posOnCouchIndex] = thing.currentImage.id;
                 let posOnCouch = emptyPositionsOnCouch[posOnCouchIndex];
-                thing.hopTo(posOnCouch.x, posOnCouch.y, sec * .5, 1);
+                let hopTime = sec * .5;
+                thing.hopTo(posOnCouch.x, posOnCouch.y, hopTime, 1);
+                setTimeout(() => {
+                    let order = posOnCouch.isBehind ? this.renderOrders.behindCouch : this.renderOrders.itemOnCouch;
+                    thing.renderOrder = order;
+                }, hopTime * .5);
             }
 
             await this.context.toolbox.waitForMS(sec);
@@ -151,16 +167,16 @@ export class Game {
         while(this.isWaitingForSit) {
 
             //remove filled positions
-            let emptyPositionsBelowCouch = this.positionsBelowCouch.filter((x, i) => {
-                return this.context.model.isCouchSpotEmpty(i);
-            });
+            let emptyIndexes = [];
+            for(let i = 0; i < this.context.model.howManySpotsOnCouch; i++) {
+                if(this.context.model.isCouchSpotEmpty(i)) {
+                    emptyIndexes.push(i);
+                }
+            }
 
-            // this.personPositionIndex = (this.positionsBelowCouch.length-1) - (shifts % this.positionsOnCouch.length);
-            this.personPositionIndex = (emptyPositionsBelowCouch.length-1) - (shifts % emptyPositionsBelowCouch.length);
-            let posBelowCouch = emptyPositionsBelowCouch[this.personPositionIndex];
-            console.log(this.personPositionIndex);
-            console.log(emptyPositionsBelowCouch);
-            console.log(posBelowCouch);
+            let indexInEmptyArray = (emptyIndexes.length-1) - (shifts % emptyIndexes.length);
+            this.personPositionIndex = emptyIndexes[indexInEmptyArray];
+            let posBelowCouch = this.positionsBelowCouch[this.personPositionIndex];
             person.hopTo(posBelowCouch.x, posBelowCouch.y, sec * .25, 1);
 
             await this.context.toolbox.waitForMS(sec);
@@ -207,7 +223,7 @@ export class Game {
             let idOfItemThatWasSatOn = this.itemsByIndex[this.personPositionIndex];
             if(idOfItemThatWasSatOn) {
                 let itemSatOn = this.thingsYouCanSitOn.find(x => x.currentImage.id == idOfItemThatWasSatOn)
-                console.log(itemSatOn);
+                console.log("INDEX:" + itemSatOn);
             }
 
             let onCouchPos = this.positionsOnCouch[this.personPositionIndex];
@@ -218,6 +234,7 @@ export class Game {
             this.sortSprites();
 
             //faster next
+            sec *= secDecay;
         }
             
     }

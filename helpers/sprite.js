@@ -28,7 +28,7 @@ export class Sprite {
     previousIndex = 0; //detects loops
     onComplete
 
-    constructor(context, path, scale) {
+    constructor(context, id, scale) {
 
         this.draw = this.draw.bind(this);
         this.setSprite = this.setSprite.bind(this);
@@ -42,16 +42,13 @@ export class Sprite {
         this.setPosition = this.setPosition.bind(this);
         this.getPivotXOffset = this.getPivotXOffset.bind(this);
         this.getPivotYOffset = this.getPivotYOffset.bind(this);
-
-        this.currentImage = new Image();
-        this.setSprite(path);
         this.context = context;
         this.scale = scale;
 
+        this.setSprite(id);
+
         this.width = this.currentImage.naturalWidth * this.scale;
         this.height = this.currentImage.naturalHeight * this.scale;
-
-
         this.x = this.context.canvas.width/2;
         this.y = this.context.canvas.height/2
     }
@@ -90,6 +87,8 @@ export class Sprite {
     }
 
     draw() {
+        if (!this.currentImage || !this.currentImage.complete) return;
+    
         this.context.pencil.drawImage(this.currentImage, this.x, this.y, this.width, this.height);
     
         if(this.showBounds) {
@@ -146,6 +145,8 @@ export class Sprite {
     }
 
     play(idsForAnimationFrame, fps, loops, onComplete) {
+        this.stop();
+        
         this.idsForAnimationFrames = idsForAnimationFrame;
         this.loopLengthMS = (1/fps) * idsForAnimationFrame.length * 1000;
         this.loops = loops ?? 0;

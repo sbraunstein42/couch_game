@@ -13,18 +13,13 @@ export class Title {
         this.enter = this.enter.bind(this);
         this.exit = this.exit.bind(this);
         this.update = this.update.bind(this);
+        this.showTitle = this.showTitle.bind(this);
 
         
     }
 
-    enter() {
-        console.log("Entered title.");
-
-        const jumpSound = new Howl({
-            src: ['../audio/title1.wav'],
-            preload: true
-        })
-        jumpSound.play();
+    showTitle() {
+        this.context.model.playSound("title", 6);
 
         let titleSpriteIds = this.context.model.titleAnim;
         this.titleAnim = new Sprite(this.context, titleSpriteIds[0], this.context.model.spriteScale);
@@ -39,14 +34,20 @@ export class Title {
         this.titleAnim.play(titleSpriteIds, 1, 1, () => {
             this.command = "game"
         })
+        document.removeEventListener("click", this.showTitle)
 
+    }
+
+    enter() {
+        console.log("Entered title.");
+        document.addEventListener("click", this.showTitle)
     }
 
     exit() {
     }
 
     update() {
-        this.titleAnim.draw();
+            this.titleAnim?.draw();
         return this.command;
     }
 

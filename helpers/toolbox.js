@@ -1,10 +1,16 @@
 export class Toolbox {
 
+    
     //gets a random number 0 -> array.length, given an array.
     getRandomIndex(array) {
+        return this.getRandomInt(0, array.length);
+    }
+
+    getRandomInt(min, max) {
+        var diff = Math.floor(max - min);
         return Math.floor(
-            Math.random() * array.length
-        );
+            Math.random() * diff
+        ) + min;
     }
 
     //gets a random item from an array

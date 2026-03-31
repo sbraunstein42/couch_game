@@ -69,7 +69,6 @@ export class Game {
             sprite.renderOrder = this.renderOrders.itemOnCouch;
             this.thingsYouCanSitOn.push(sprite);
             this.sprites.push(sprite);
-
         }
 
         this.sittableWidth = this.thingsYouCanSitOn[0].width;
@@ -195,6 +194,10 @@ export class Game {
         let peopleGap = this.context.model.spriteScale * 15;
         let peopleWaitingY = this.context.canvas.height - (this.peopleHeight * .6);
         
+        console.log(this.context);
+        this.context.model.playSound("ready", 1);
+
+
         //people get into waiting position
         for(let i = 0; i < this.people.length; i++) {
             let startX = this.peopleWidth - ((i + 1) * peopleGap) + this.context.canvas.width/2;
@@ -210,6 +213,13 @@ export class Game {
             //person gets in front of the couch
             let person = this.people[i];
             person.hopTo(spotlightX, spotlightY, sec, 7);
+
+            if(Math.random() > .5)
+                this.context.model.playSound("ooh", 2);
+            else {
+                this.context.model.playSound("inhale", 2);
+            }
+
             await this.context.toolbox.waitForMS(sec);
 
             //rotate items through couch positions
@@ -226,6 +236,17 @@ export class Game {
             if(idOfItemThatWasSatOn) {
                 let itemSatOn = this.thingsYouCanSitOn.find(x => x.currentImage.id == idOfItemThatWasSatOn)
                 console.log("INDEX:" + itemSatOn);
+
+                let r = Math.random();
+                if(r > .75) {
+                    this.context.model.playSound("ahh", 2);
+                } else if(r > .5) {
+                    this.context.model.playSound("ohno", 4);
+                } else if(r > .25) {
+                    this.context.model.playSound("yay", 2);
+                } else {
+                    this.context.model.playSound("whoops", 1);
+                }
             }
 
             let onCouchPos = this.positionsOnCouch[this.personPositionIndex];

@@ -10,6 +10,8 @@ export class Model {
     howManyThingsOnCouch = 1;
     howManySpotsOnCouch = 4;
 
+    toolbox;
+
     sittables = new Deck([
         // "sittable_balloon",
         "sittable_cake",
@@ -37,10 +39,14 @@ export class Model {
         "title4",
     ];
 
-    constructor() {
+    constructor(toolbox) {
 
+        this.toolbox = toolbox;
+        
         this.setPersonInCouchIndex = this.setPersonInCouchIndex.bind(this);
         this.isCouchSpotEmpty = this.isCouchSpotEmpty.bind(this);
+        this.getRandomSound = this.getRandomSound.bind(this);
+        this.playSound = this.playSound.bind(this);
 
         this.peopleOnCouch = [];
         for(let i = 0; i < this.howManySpotsOnCouch; i++) {
@@ -67,6 +73,21 @@ export class Model {
     getRandomCouch() {
         return this.couches.take();
     }
+
+    getRandomSound(name, variantCount) {
+        let variant = this.toolbox.getRandomInt(1, variantCount);
+        return ['../audio/' + name + variant + '.wav']
+    }
+
+    playSound(name, variantCount) {
+        const sound = new Howl({
+            src: this.getRandomSound(name, variantCount),
+            preload: true
+        })
+        sound.play();
+        return sound;
+    }
+    
 
 
 }

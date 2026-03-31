@@ -7,12 +7,13 @@ import { Model } from "./model.js";
 let canvas = document.getElementById("myCanvas");
 let lastTime = performance.now();
 let gameLoopId;
+let toolbox = new Toolbox();
 
 let context = {
     canvas : canvas,
     pencil : canvas.getContext("2d"), 
-    toolbox : new Toolbox(),
-    model : new Model(),
+    toolbox : toolbox,
+    model : new Model(toolbox),
     deltaTimeMS : 0,
     tweens : []
 }
@@ -28,7 +29,7 @@ let states = {
 }
 
 //enter title
-let currentState = states.title;
+let currentState = states.game;
 
 function gameLoop(timeStamp) {
     context.deltaTimeMS = timeStamp - lastTime;

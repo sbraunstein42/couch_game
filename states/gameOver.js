@@ -40,6 +40,7 @@ export class GameOver {
     }
 
     enter() {
+
         // document.addEventListener("keypress", this.onKeyPressed )
         // document.addEventListener("click", this.onClicked)
 

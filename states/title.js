@@ -17,13 +17,14 @@ export class Title {
         
     }
 
-    enter() { 
+    enter() {
         console.log("Entered title.");
 
         const jumpSound = new Howl({
             src: ['../audio/title1.wav'],
             preload: true
         })
+        jumpSound.play();
 
         let titleSpriteIds = this.context.model.titleAnim;
         this.titleAnim = new Sprite(this.context, titleSpriteIds[0], this.context.model.spriteScale);

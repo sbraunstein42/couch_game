@@ -25,7 +25,7 @@ export class Sprite {
     loopLengthMS;
     animationId;
     playStartTimeMS;
-    previousIndex = 0; //detects loops
+    previousIndex; //detects loops
     onComplete
 
     constructor(context, id, scale) {
@@ -146,17 +146,18 @@ export class Sprite {
 
     play(idsForAnimationFrame, fps, loops, onComplete) {
         this.stop();
-        
+
         this.idsForAnimationFrames = idsForAnimationFrame;
         this.loopLengthMS = (1/fps) * idsForAnimationFrame.length * 1000;
         this.loops = loops ?? 0;
-        this.playStartTimeMS = performance.now();
+        this.previousIndex = 0;
         this.onComplete = onComplete;
 
         this.animationId = requestAnimationFrame(this.onAnimationFrame)
     }
 
     stop() {
+        this.playStartTimeMS = undefined; //restart it
         cancelAnimationFrame(this.animationId);
     }
 
@@ -164,12 +165,13 @@ export class Sprite {
     /// PRIVATE DONT CALL FROM OUTSIDE
     onAnimationFrame(timeStamp) {
 
+        if(this.playStartTimeMS === undefined) this.playStartTimeMS = timeStamp;
         let elapsedMS = (timeStamp - this.playStartTimeMS) % this.loopLengthMS;
         let phase = elapsedMS/this.loopLengthMS;
-        let index = this.context.toolbox.lerp(0, this.idsForAnimationFrames.length - .001, phase);
+        let index = this.context.toolbox.lerp(0, this.idsForAnimationFrames.length, phase);
         index = Math.floor(index);
         let isNewFrame = this.previousIndex !== index;
-        let isNewLoop = isNewFrame && index == 0;
+        let isNewLoop = this.previousIndex !== undefined && isNewFrame && index == 0;
 
         if(isNewLoop) {
             this.loops--;

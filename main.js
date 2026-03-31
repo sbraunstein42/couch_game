@@ -42,6 +42,7 @@ function gameLoop(timeStamp) {
 
     if(command) {
         currentState.exit();
+        currentState.command = undefined; //reset for next time
         currentState =  states[command];
         if(!currentState) throw new Error("No state named: " + command);
         currentState.enter();

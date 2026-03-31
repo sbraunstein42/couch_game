@@ -53,6 +53,8 @@ export class Game {
     }
 
     enter() {
+        console.log("Entered game.");
+
         this.thingsYouCanSitOn = [];
         this.people = [];
         this.positionsOnCouch = [];

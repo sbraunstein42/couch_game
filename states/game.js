@@ -11,6 +11,8 @@ export class Game {
     thingsYouCanSitOn;
     people;
     couch;
+    japaneseStar;
+    youWinAnim;
 
     //sizes
     sittableWidth;
@@ -29,13 +31,14 @@ export class Game {
     personPositionIndex;
     itemsByIndex;
 
-
     isWaitingForSit = false;
 
     //layers
     renderOrders = {
-        behindCouch : 0,
+        background : 0,
+        behindCouch : 5,
         couch : 10,
+        youWinAnim : 15,
         sittingOnCouch : 20,
         itemOnCouch : 30,
         inFrontOfCouch : 40
@@ -154,7 +157,6 @@ export class Game {
                 let posOnCouch = emptyPositionsOnCouch[posOnCouchIndex];
                 let hopTime = sec * .5;
                 thing.hopHeight = hopHeight;
-                console.log(thing.hopHeight);
                 thing.hopTo(posOnCouch.x, posOnCouch.y, hopTime, 1);
                 setTimeout(() => {
                     let order = posOnCouch.isBehind ? this.renderOrders.behindCouch : this.renderOrders.itemOnCouch;
@@ -245,7 +247,6 @@ export class Game {
             let idOfItemThatWasSatOn = this.itemsByIndex[this.personPositionIndex];
             if(idOfItemThatWasSatOn) {
                 let itemSatOn = this.thingsYouCanSitOn.find(x => x.currentImage.id == idOfItemThatWasSatOn)
-                console.log("INDEX:" + itemSatOn);
 
                 let r = Math.random();
                 if(r > .75) {
@@ -269,7 +270,26 @@ export class Game {
             //faster next
             sec *= secDecay;
         }
-            
+
+        let middleX = this.context.canvas.width /2;
+        let middleY = this.context.canvas.height /2;
+
+        //show sf2 e honda win effect
+        this.japaneseStar = new Sprite(this.context, "japaneseStar2", this.context.model.spriteScale)
+        this.japaneseStar.renderOrder = this.renderOrders.background;
+        this.japaneseStar.setPosition(middleX, middleY);
+        this.sprites.push(this.japaneseStar);
+        this.sortSprites();
+        this.japaneseStar.play(this.context.model.japaneseStarAnim, 5, -1);
+
+        //show you win
+        this.youWinAnim = new Sprite(this.context, "youWinAnim2", this.context.model.spriteScale)
+        this.youWinAnim.renderOrder = this.renderOrders.background;
+        this.youWinAnim.setPosition(middleX, middleY);
+        this.sprites.push(this.youWinAnim);
+        this.sortSprites();
+        this.japaneseStar.play(this.context.model.japaneseStarAnim, 5, -1);
+
     }
 
     sortSprites() {

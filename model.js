@@ -10,9 +10,15 @@ export class Model {
     peopleOnCouch = [];
     spriteScale = 10;
 
+    //fast game
     howManyContestants = 1;
     howManyThingsOnCouch = 1;
     howManySpotsOnCouch = 1;
+
+    //real game
+    // howManyContestants = 4;
+    // howManyThingsOnCouch = 1;
+    // howManySpotsOnCouch = 4;
 
     toolbox;
 
@@ -41,15 +47,22 @@ export class Model {
         "title2",
         "title3",
         "title4",
-        "title5",
-        "title6",
-        "title7",
+
     ];
+
+    titleDecorateAnim = [
+        "title5"
+    ]
 
     titleWiggleAnim = [
         "title6",
         "title7",
     ];
+
+    japaneseStarAnim = [
+        "japaneseStar1",
+        "japaneseStar2"
+    ]
 
     constructor(toolbox) {
 

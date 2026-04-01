@@ -42,6 +42,7 @@ export class Sprite {
         this.setPosition = this.setPosition.bind(this);
         this.getPivotXOffset = this.getPivotXOffset.bind(this);
         this.getPivotYOffset = this.getPivotYOffset.bind(this);
+
         this.context = context;
         this.scale = scale;
 
@@ -150,43 +151,54 @@ export class Sprite {
         this.idsForAnimationFrames = idsForAnimationFrame;
         this.loopLengthMS = (1/fps) * idsForAnimationFrame.length * 1000;
         this.loops = loops ?? 0;
-        this.previousIndex = 0;
+        this.previousLoopsCompleted = 0;
         this.onComplete = onComplete;
 
         this.animationId = requestAnimationFrame(this.onAnimationFrame)
+
+        //returns milliseconds it will take for animation, -1 if infinite
+        if(loops < 0) return Math.Infinity;
+
+        let msPerFrame = 1000/fps;
+        return loops * (msPerFrame * idsForAnimationFrame.length);
     }
 
     stop() {
         this.playStartTimeMS = undefined; //restart it
+        this.previousLoopsCompleted = 0;
         cancelAnimationFrame(this.animationId);
     }
-
 
     /// PRIVATE DONT CALL FROM OUTSIDE
     onAnimationFrame(timeStamp) {
 
         if(this.playStartTimeMS === undefined) this.playStartTimeMS = timeStamp;
-        let elapsedMS = (timeStamp - this.playStartTimeMS) % this.loopLengthMS;
-        let phase = elapsedMS/this.loopLengthMS;
-        let index = this.context.toolbox.lerp(0, this.idsForAnimationFrames.length, phase);
-        index = Math.floor(index);
-        let isNewFrame = this.previousIndex !== index;
-        let isNewLoop = this.previousIndex !== undefined && isNewFrame && index == 0;
 
-        if(isNewLoop) {
-            this.loops--;
-            if(this.loops == 0) {
-                if(this.onComplete) {
-                    this.onComplete();
-                    this.onComplete = undefined;
+        let totalElapsedMS = timeStamp - this.playStartTimeMS;
+        let loopsCompleted = Math.floor(totalElapsedMS / this.loopLengthMS);
+
+        if(loopsCompleted > this.previousLoopsCompleted) {
+            let delta = loopsCompleted - this.previousLoopsCompleted;
+            this.previousLoopsCompleted = loopsCompleted;
+            if(this.loops !== 0) {
+                this.loops -= delta;
+                if(this.loops == 0) {
+                    this.stop();
+                    if(this.onComplete) {
+                        let callback = this.onComplete;
+                        this.onComplete = undefined;
+                        callback()
+                    }
+                    return;
                 }
-                this.stop();
-                return;
             }
         }
 
-        this.setSprite(this.idsForAnimationFrames[index])
-        this.previousIndex = index;
+        let elapsedMS = totalElapsedMS % this.loopLengthMS;
+        let phase = elapsedMS / this.loopLengthMS;
+        let index = Math.floor(this.context.toolbox.lerp(0, this.idsForAnimationFrames.length, phase));
+
+        this.setSprite(this.idsForAnimationFrames[index]);
         this.animationId = requestAnimationFrame(this.onAnimationFrame)
     }
 

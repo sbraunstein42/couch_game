@@ -14,11 +14,13 @@ export class Title {
         this.exit = this.exit.bind(this);
         this.update = this.update.bind(this);
         this.showTitle = this.showTitle.bind(this);
-
+        this.titleComplete = this.titleComplete.bind(this);
         
     }
 
-    showTitle() {
+    async showTitle() {
+
+        document.removeEventListener("click", this.showTitle)
 
         let titleAppearAnim = this.context.model.titleAnim;
         this.titleAnim = new Sprite(this.context, titleAppearAnim[0], this.context.model.spriteScale);
@@ -29,17 +31,36 @@ export class Title {
         let middleY = this.context.canvas.height / 2;
         this.titleAnim.setPosition(middleX, middleY);
 
-        console.log(titleAppearAnim.length)
-
-        // play(pathsForAnimationFrames, fps, loops, onComplete) {
-        this.titleAnim.play(titleAppearAnim, 1.5, 1, () => {
-            this.titleAnim.play(this.context.model.titleWiggleAnim, 2.25, 30, () => {
-                this.command = "game"
-            });
-        })
         this.context.model.playSound("title", 6);
 
-        document.removeEventListener("click", this.showTitle)
+        // play(pathsForAnimationFrames, fps, loops, onComplete) {
+        let appearTime = this.titleAnim.play(titleAppearAnim, 1.5, 1);
+        await this.context.toolbox.waitForMS(appearTime);
+        
+        let decorateTime = this.titleAnim.play(this.context.model.titleDecorateAnim, 6, 1);
+        await this.context.toolbox.waitForMS(decorateTime);
+
+        //goes forever, but we wait for a click
+        this.titleAnim.play(this.context.model.titleWiggleAnim, 6, -1);
+        document.addEventListener("click", this.titleComplete);
+
+        // // play(pathsForAnimationFrames, fps, loops, onComplete) {
+        // this.titleAnim.play(titleAppearAnim, 1.5, 1, () => {
+        //     this.titleAnim.play(this.context.model.titleDecorateAnim, 6, 1, () => {
+        //         this.titleAnim.play(this.context.model.titleWiggleAnim, 6, 20, () => {
+        //             this.addEventListener("click", this.titleComplete);
+        //         });
+        //     });
+        // })
+        // this.context.model.playSound("title", 6);
+
+        // document.removeEventListener("click", this.showTitle)
+    }
+    
+    titleComplete() {
+        this.titleAnim.stop();
+        document.removeEventListener("click", this.titleComplete);
+        this.command = "game";
     }
 
     enter() {
@@ -48,10 +69,11 @@ export class Title {
     }
 
     exit() {
+
     }
 
     update() {
-            this.titleAnim?.draw();
+        this.titleAnim?.draw();
         return this.command;
     }
 

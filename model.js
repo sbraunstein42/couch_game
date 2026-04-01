@@ -11,16 +11,18 @@ export class Model {
     spriteScale = 10;
 
     //fast game
-    howManyContestants = 1;
-    howManyThingsOnCouch = 1;
-    howManySpotsOnCouch = 1;
+    // howManyContestants = 1;
+    // howManyThingsOnCouch = 1;
+    // howManySpotsOnCouch = 1;
 
     //real game
-    // howManyContestants = 4;
-    // howManyThingsOnCouch = 1;
-    // howManySpotsOnCouch = 4;
+    howManyContestants = 4;
+    howManyThingsOnCouch = 1;
+    howManySpotsOnCouch = 4;
 
     toolbox;
+    music;
+
 
     sittables = new Deck([
         // "sittable_balloon",
@@ -83,6 +85,8 @@ export class Model {
         this.isCouchSpotEmpty = this.isCouchSpotEmpty.bind(this);
         this.getRandomSound = this.getRandomSound.bind(this);
         this.playSound = this.playSound.bind(this);
+        this.playTitleMusic = this.playTitleMusic.bind(this);
+        this.pitchDownMusicThenFart = this.pitchDownMusicThenFart.bind(this);
 
         this.peopleOnCouch = [];
         for(let i = 0; i < this.howManySpotsOnCouch; i++) {
@@ -124,6 +128,41 @@ export class Model {
         })
         sound.play();
         return sound;
+    }
+
+    playTitleMusic() {
+        this.music = new Howl({
+            src: ['../audio/music/spanish_flea.mp3'],
+            preload: true
+        });
+        this.music.play();
+    }
+
+    async pitchDownMusicThenFart() {
+        if (!this.music || !this.music.playing()) return;
+
+        const duration = 1000;
+        const interval = 30;
+        const targetRate = 0.05;
+        const steps = duration / interval;
+        const rateStep = (1.0 - targetRate) / steps;
+        let currentRate = 1.0;
+
+        await new Promise(resolve => {
+            const iv = setInterval(() => {
+                currentRate -= rateStep;
+                if (currentRate <= targetRate) {
+                    this.music.stop();
+                    clearInterval(iv);
+                    resolve();
+                } else {
+                    this.music.rate(currentRate);
+                }
+            }, interval);
+        });
+
+        await this.toolbox.waitForMS(800);
+        this.playSound("fart", 1);
     }
     
 

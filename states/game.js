@@ -255,6 +255,7 @@ export class Game {
                 } else {
                     this.context.model.playSound("whoops", 1);
                 }
+                this.context.model.pitchDownMusicThenFart();
             }
 
             let onCouchPos = this.positionsOnCouch[this.personPositionIndex];

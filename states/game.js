@@ -268,6 +268,9 @@ export class Game {
             sec *= secDecay;
         }
 
+        //wait for it to resolve
+        await this.context.toolbox.waitForMS(1000);
+
         let middleX = this.context.canvas.width /2;
         let middleY = this.context.canvas.height /2;
 
@@ -286,8 +289,10 @@ export class Game {
         this.youWinAnim.setPosition(middleX, middleY);
         this.sprites.push(this.youWinAnim);
         this.sortSprites();
-        let youWinIntroTime = this.youWinAnim.play(winAnimIds, 4, 1);
         this.context.model.playSound("yay", 2);
+        let youWinIntroTime = this.youWinAnim.play(winAnimIds, 4, 1);
+        await this.context.toolbox.waitForMS(youWinIntroTime);
+        this.youWinAnim.play(this.context.model.youWinWiggleAnim, 6, -1);
 
     }
 

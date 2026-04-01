@@ -4,11 +4,12 @@ export class Model {
 
     //debug options
     // mute = true;
-
+    slowItemMovement = 5000;
 
     empty = "empty";
     peopleOnCouch = [];
     spriteScale = 10;
+
 
     //fast game
     // howManyContestants = 1;
@@ -88,6 +89,7 @@ export class Model {
         this.playTitleMusic = this.playTitleMusic.bind(this);
         this.pitchDownMusicThenFart = this.pitchDownMusicThenFart.bind(this);
         this.restartMusic = this.restartMusic.bind(this);
+        this.makeMusicQuiet = this.makeMusicQuiet.bind(this);
 
         this.peopleOnCouch = [];
         for(let i = 0; i < this.howManySpotsOnCouch; i++) {
@@ -136,7 +138,15 @@ export class Model {
             src: ['../audio/music/spanish_flea.mp3'],
             preload: true
         });
+        this.music.volume(this.mute ? 0 : 1);
         this.musicId = this.music.play();
+    }
+
+    makeMusicQuiet() {
+        if(!this.music) this.playTitleMusic();
+
+        if(this.mute) return;
+        this.music.volume(0.75);
     }
 
     restartMusic() {

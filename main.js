@@ -29,7 +29,7 @@ let states = {
 }
 
 //enter title
-let currentState = states.title;
+let currentState = states.game;
 
 function gameLoop(timeStamp) {
     context.deltaTimeMS = timeStamp - lastTime;

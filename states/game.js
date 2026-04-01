@@ -112,7 +112,7 @@ export class Game {
 
         document.addEventListener("click", this.onPlayerRequestedSit)
 
-        this.context.model.music?.volume(0.75);
+        this.context.model.makeMusicQuiet();
 
         this.sortSprites();
         this.gameRoutine();
@@ -170,7 +170,8 @@ export class Game {
                 }, hopTime * .5);
             }
 
-            await this.context.toolbox.waitForMS(sec);
+            let delay = this.context.model.slowItemMovement ?? sec;
+            await this.context.toolbox.waitForMS(delay);
             shifts++;
         }
 

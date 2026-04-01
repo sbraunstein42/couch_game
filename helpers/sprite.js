@@ -13,7 +13,7 @@ export class Sprite {
     xPivotPhase = .5;
     yPivotPhase = .5;
 
-    showBounds;
+    // showBounds = true;
 
     renderOrder = 0;
 

@@ -2,13 +2,17 @@ import { Deck } from "./helpers/deck.js";
 
 export class Model {
 
+    //debug options
+    mute = true;
+
+
     empty = "empty";
     peopleOnCouch = [];
     spriteScale = 10;
 
-    howManyContestants = 4;
+    howManyContestants = 1;
     howManyThingsOnCouch = 1;
-    howManySpotsOnCouch = 4;
+    howManySpotsOnCouch = 1;
 
     toolbox;
 
@@ -37,6 +41,14 @@ export class Model {
         "title2",
         "title3",
         "title4",
+        "title5",
+        "title6",
+        "title7",
+    ];
+
+    titleWiggleAnim = [
+        "title6",
+        "title7",
     ];
 
     constructor(toolbox) {
@@ -80,6 +92,8 @@ export class Model {
     }
 
     playSound(name, variantCount) {
+        if(this.mute) return null;
+
         const sound = new Howl({
             src: this.getRandomSound(name, variantCount),
             preload: true

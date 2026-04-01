@@ -50,11 +50,10 @@ export class Game {
         this.onPlayerRequestedSit = this.onPlayerRequestedSit.bind(this);
         this.shiftItemsRoutine = this.shiftItemsRoutine.bind(this);
         this.shiftPeopleRoutine = this.shiftPersonRoutine.bind(this);
+        this.sortSprites = this.sortSprites.bind(this);
     }
 
     enter() {
-        console.log("Entered game.");
-
         this.thingsYouCanSitOn = [];
         this.people = [];
         this.positionsOnCouch = [];
@@ -76,6 +75,7 @@ export class Game {
 
         const couchId = this.context.model.getRandomCouch();
         this.couch = new Sprite(this.context, couchId, this.context.model.spriteScale)
+        this.couch.renderOrder = this.renderOrders.couch;
         this.sprites.push(this.couch);
         // this.couch.showBounds = true;
         
@@ -126,7 +126,10 @@ export class Game {
             return this.context.model.isCouchSpotEmpty(i);
         });
 
+        let hopHeight = -30;
+
         if(emptyPositionsOnCouch.length == 1) {
+            hopHeight = -100;
             let behindPos = {
                 x: emptyPositionsOnCouch[0].x,
                 y: emptyPositionsOnCouch[0].y,
@@ -142,16 +145,24 @@ export class Game {
                 throw new Error("Too many items, not enfough spaces?");
             }
             this.itemsByIndex = {};
+
+           
             for(let j = 0; j < this.thingsYouCanSitOn.length; j++) {
                 let thing = this.thingsYouCanSitOn[j];
                 let posOnCouchIndex = (j + shifts) % emptyPositionsOnCouch.length;
                 this.itemsByIndex[posOnCouchIndex] = thing.currentImage.id;
                 let posOnCouch = emptyPositionsOnCouch[posOnCouchIndex];
                 let hopTime = sec * .5;
+                thing.hopHeight = hopHeight;
+                console.log(thing.hopHeight);
                 thing.hopTo(posOnCouch.x, posOnCouch.y, hopTime, 1);
                 setTimeout(() => {
                     let order = posOnCouch.isBehind ? this.renderOrders.behindCouch : this.renderOrders.itemOnCouch;
+                    let changedOrder = order !== thing.renderOrder;
                     thing.renderOrder = order;
+                    if(changedOrder) {
+                        this.sortSprites();
+                    }
                 }, hopTime * .5);
             }
 
@@ -194,7 +205,6 @@ export class Game {
         let peopleGap = this.context.model.spriteScale * 15;
         let peopleWaitingY = this.context.canvas.height - (this.peopleHeight * .6);
         
-        console.log(this.context);
         this.context.model.playSound("ready", 1);
 
 

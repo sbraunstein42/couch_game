@@ -19,23 +19,27 @@ export class Title {
     }
 
     showTitle() {
-        this.context.model.playSound("title", 6);
 
-        let titleSpriteIds = this.context.model.titleAnim;
-        this.titleAnim = new Sprite(this.context, titleSpriteIds[0], this.context.model.spriteScale);
+        let titleAppearAnim = this.context.model.titleAnim;
+        this.titleAnim = new Sprite(this.context, titleAppearAnim[0], this.context.model.spriteScale);
         this.titleAnim.setPivot(.5,.5)
-        this.titleAnim.showBounds = true;
+        // this.titleAnim.showBounds = true;
 
         let middleX = this.context.canvas.width / 2;
         let middleY = this.context.canvas.height / 2;
         this.titleAnim.setPosition(middleX, middleY);
 
-        // play(pathsForAnimationFrames, fps, loops, onComplete) {
-        this.titleAnim.play(titleSpriteIds, 1, 1, () => {
-            this.command = "game"
-        })
-        document.removeEventListener("click", this.showTitle)
+        console.log(titleAppearAnim.length)
 
+        // play(pathsForAnimationFrames, fps, loops, onComplete) {
+        this.titleAnim.play(titleAppearAnim, 1.5, 1, () => {
+            this.titleAnim.play(this.context.model.titleWiggleAnim, 2.25, 30, () => {
+                this.command = "game"
+            });
+        })
+        this.context.model.playSound("title", 6);
+
+        document.removeEventListener("click", this.showTitle)
     }
 
     enter() {

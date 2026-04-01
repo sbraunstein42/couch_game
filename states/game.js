@@ -112,6 +112,8 @@ export class Game {
 
         document.addEventListener("click", this.onPlayerRequestedSit)
 
+        this.context.model.music?.volume(0.75);
+
         this.sortSprites();
         this.gameRoutine();
 
@@ -155,7 +157,7 @@ export class Game {
                 let posOnCouchIndex = (j + shifts) % emptyPositionsOnCouch.length;
                 this.itemsByIndex[posOnCouchIndex] = thing.currentImage.id;
                 let posOnCouch = emptyPositionsOnCouch[posOnCouchIndex];
-                let hopTime = sec * .5;
+                let hopTime = sec * .75;
                 thing.hopHeight = hopHeight;
                 thing.hopTo(posOnCouch.x, posOnCouch.y, hopTime, 1);
                 setTimeout(() => {
@@ -223,6 +225,7 @@ export class Game {
 
             //person gets in front of the couch
             let person = this.people[i];
+            if (i > 0) this.context.model.restartMusic();
             person.hopTo(spotlightX, spotlightY, sec, 7);
 
             if(Math.random() > .5)
@@ -255,7 +258,7 @@ export class Game {
                 } else {
                     this.context.model.playSound("whoops", 1);
                 }
-                this.context.model.pitchDownMusicThenFart();
+                await this.context.model.pitchDownMusicThenFart();
             }
 
             let onCouchPos = this.positionsOnCouch[this.personPositionIndex];

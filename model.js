@@ -87,6 +87,7 @@ export class Model {
         this.playSound = this.playSound.bind(this);
         this.playTitleMusic = this.playTitleMusic.bind(this);
         this.pitchDownMusicThenFart = this.pitchDownMusicThenFart.bind(this);
+        this.restartMusic = this.restartMusic.bind(this);
 
         this.peopleOnCouch = [];
         for(let i = 0; i < this.howManySpotsOnCouch; i++) {
@@ -135,11 +136,17 @@ export class Model {
             src: ['../audio/music/spanish_flea.mp3'],
             preload: true
         });
-        this.music.play();
+        this.musicId = this.music.play();
+    }
+
+    restartMusic() {
+        if (!this.music) return;
+        this.music.rate(1.0, this.musicId);
+        this.music.play(this.musicId);
     }
 
     async pitchDownMusicThenFart() {
-        if (!this.music || !this.music.playing()) return;
+        if (!this.music || !this.music.playing(this.musicId)) return;
 
         const duration = 1000;
         const interval = 30;
@@ -152,11 +159,11 @@ export class Model {
             const iv = setInterval(() => {
                 currentRate -= rateStep;
                 if (currentRate <= targetRate) {
-                    this.music.stop();
+                    this.music.pause(this.musicId);
                     clearInterval(iv);
                     resolve();
                 } else {
-                    this.music.rate(currentRate);
+                    this.music.rate(currentRate, this.musicId);
                 }
             }, interval);
         });

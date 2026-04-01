@@ -3,7 +3,7 @@ import { Deck } from "./helpers/deck.js";
 export class Model {
 
     //debug options
-    mute = true;
+    // mute = true;
 
 
     empty = "empty";

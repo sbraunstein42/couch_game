@@ -64,6 +64,17 @@ export class Model {
         "japaneseStar2"
     ]
 
+    youWinAnim = [
+        "youWin1",
+        "youWin2",
+        "youWin3",
+    ]
+
+    youWinWiggleAnim = [
+        "youWin4",
+        "youWin5",
+    ]
+
     constructor(toolbox) {
 
         this.toolbox = toolbox;

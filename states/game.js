@@ -209,7 +209,6 @@ export class Game {
         
         this.context.model.playSound("ready", 1);
 
-
         //people get into waiting position
         for(let i = 0; i < this.people.length; i++) {
             let startX = this.peopleWidth - ((i + 1) * peopleGap) + this.context.canvas.width/2;
@@ -249,12 +248,10 @@ export class Game {
                 let itemSatOn = this.thingsYouCanSitOn.find(x => x.currentImage.id == idOfItemThatWasSatOn)
 
                 let r = Math.random();
-                if(r > .75) {
+                if(r > .77) {
                     this.context.model.playSound("ahh", 2);
-                } else if(r > .5) {
+                } else if(r > .44) {
                     this.context.model.playSound("ohno", 4);
-                } else if(r > .25) {
-                    this.context.model.playSound("yay", 2);
                 } else {
                     this.context.model.playSound("whoops", 1);
                 }
@@ -283,12 +280,14 @@ export class Game {
         this.japaneseStar.play(this.context.model.japaneseStarAnim, 5, -1);
 
         //show you win
-        this.youWinAnim = new Sprite(this.context, "youWinAnim2", this.context.model.spriteScale)
-        this.youWinAnim.renderOrder = this.renderOrders.background;
+        let winAnimIds = this.context.model.youWinAnim;
+        this.youWinAnim = new Sprite(this.context, winAnimIds[0], this.context.model.spriteScale)
+        this.youWinAnim.renderOrder = this.renderOrders.youWinAnim;
         this.youWinAnim.setPosition(middleX, middleY);
         this.sprites.push(this.youWinAnim);
         this.sortSprites();
-        this.japaneseStar.play(this.context.model.japaneseStarAnim, 5, -1);
+        let youWinIntroTime = this.youWinAnim.play(winAnimIds, 4, 1);
+        this.context.model.playSound("yay", 2);
 
     }
 
@@ -303,6 +302,9 @@ export class Game {
     }
 
     exit() {
+        for(let i = 0; i < this.sprites.length; i++) {
+            this.sprites[i].stop();
+        }
         document.removeEventListener("click", this.onPlayerRequestedSit)
     }
 

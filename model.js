@@ -4,7 +4,6 @@ export class Model {
 
     //debug options
     // mute = true;
-    slowItemMovement = 5000;
 
     empty = "empty";
     peopleOnCouch = [];

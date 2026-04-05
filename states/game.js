@@ -163,7 +163,7 @@ export class Game {
                 let posOnCouchIndex = (j + shifts) % emptyPositionsOnCouch.length;
                 this.itemsByIndex[posOnCouchIndex] = thing.currentImage.id;
                 let posOnCouch = emptyPositionsOnCouch[posOnCouchIndex];
-                let hopTime = sec * .75;
+                let hopTime = sec * .3;
                 thing.hopHeight = hopHeight;
                 thing.hopTo(posOnCouch.x, posOnCouch.y, hopTime, 1);
                 setTimeout(() => {
@@ -233,7 +233,6 @@ export class Game {
             let person = this.people[i];
             if (i > 0) this.context.model.restartMusic();
             person.hopTo(spotlightX, spotlightY, sec, 7);
-
             await this.context.toolbox.waitForMS(sec);
 
             //rotate items through couch positions
@@ -242,7 +241,7 @@ export class Game {
             this.shiftItemsRoutine(sec * .5);
             
             while(this.isWaitingForSit) {
-                await this.context.toolbox.waitForMS(100);
+                await this.context.toolbox.waitForMS(10);
             }
 
             let onCouchPos = this.positionsOnCouch[this.personPositionIndex];
@@ -284,7 +283,7 @@ export class Game {
                 await this.context.toolbox.waitForMS(sec * 2);
 
                 this.context.model.playSound("fart", 3);
-                await this.context.toolbox.waitForMS(sec * .8);
+                await this.context.toolbox.waitForMS(sec * 3);
                 await this.pitchMusic(1, sec * 1.5);
 
             } else {
@@ -347,7 +346,7 @@ export class Game {
         let musicId = this.context.model.musicId;
         if (!music || !music.playing(musicId)) return;
 
-        let currentPitch = music.rate();
+        let currentPitch = music.rate(musicId);
         const intervalMS = 30;
         const steps = duration / intervalMS;
         const rateStep = (newPitch - currentPitch) / steps;

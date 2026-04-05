@@ -118,7 +118,7 @@ export class Game {
 
         document.addEventListener("click", this.onPlayerRequestedSit)
 
-        this.context.model.music?.volume(0.75);
+        this.context.model.makeMusicQuiet();
 
         this.sortSprites();
         this.gameRoutine();

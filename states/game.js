@@ -54,6 +54,7 @@ export class Game {
         this.shiftItemsRoutine = this.shiftItemsRoutine.bind(this);
         this.shiftPeopleRoutine = this.shiftPersonRoutine.bind(this);
         this.sortSprites = this.sortSprites.bind(this);
+        this.pitchMusic = this.pitchMusic.bind(this);
     }
 
     enter() {
@@ -61,6 +62,11 @@ export class Game {
         this.people = [];
         this.positionsOnCouch = [];
         this.positionsBelowCouch = [];
+
+
+        if(!this.context.model.music) {
+            this.context.model.playTitleMusic();
+        }
 
         const sittableIds = this.context.model.getRandomSittables(this.context.model.howManyThingsOnCouch);
         for(let i = 0; i < sittableIds.length; i++) {
@@ -170,7 +176,7 @@ export class Game {
                 }, hopTime * .5);
             }
 
-            await this.context.toolbox.waitForMS(sec);
+            await this.context.toolbox.waitForMS(sec * this.context.model.itemMoveDelayMult);
             shifts++;
         }
 
@@ -228,12 +234,6 @@ export class Game {
             if (i > 0) this.context.model.restartMusic();
             person.hopTo(spotlightX, spotlightY, sec, 7);
 
-            if(Math.random() > .5)
-                this.context.model.playSound("ooh", 2);
-            else {
-                this.context.model.playSound("inhale", 2);
-            }
-
             await this.context.toolbox.waitForMS(sec);
 
             //rotate items through couch positions
@@ -245,28 +245,52 @@ export class Game {
                 await this.context.toolbox.waitForMS(100);
             }
 
-            //cause player to sit!
-            let idOfItemThatWasSatOn = this.itemsByIndex[this.personPositionIndex];
-            if(idOfItemThatWasSatOn) {
-                let itemSatOn = this.thingsYouCanSitOn.find(x => x.currentImage.id == idOfItemThatWasSatOn)
+            let onCouchPos = this.positionsOnCouch[this.personPositionIndex];
 
-                let r = Math.random();
-                if(r > .77) {
-                    this.context.model.playSound("ahh", 2);
-                } else if(r > .44) {
-                    this.context.model.playSound("ohno", 4);
-                } else {
-                    this.context.model.playSound("whoops", 1);
-                }
-                await this.context.model.pitchDownMusicThenFart();
+            //cause player to sit!
+            
+            let idOfItemThatWasSatOn = this.itemsByIndex[this.personPositionIndex];
+
+            const sitDown = async (sitDownDurationMS) => {
+                person.hopTo(onCouchPos.x, onCouchPos.y, sitDownDurationMS, 4);
+                this.context.model.setPersonInCouchIndex(this.personPositionIndex, person.currentImage.id);
+                await this.context.toolbox.waitForMS(sitDownDurationMS);
+                person.renderOrder = this.renderOrders.sittingOnCouch;
+                this.sortSprites();
             }
 
-            let onCouchPos = this.positionsOnCouch[this.personPositionIndex];
-            person.hopTo(onCouchPos.x, onCouchPos.y, sec * .5, 4);
-            await this.context.toolbox.waitForMS(sec);
-            this.context.model.setPersonInCouchIndex(this.personPositionIndex, person.currentImage.id);
-            person.renderOrder = this.renderOrders.sittingOnCouch;
-            this.sortSprites();
+            console.log("ON SAT DOWN....")
+            console.log(this.personPositionIndex + " for person");
+            console.log("ITEMS BY INDEX:")
+            console.log(this.itemsByIndex);
+            console.log(idOfItemThatWasSatOn)
+
+            if(idOfItemThatWasSatOn) {
+                let itemSatOn = this.thingsYouCanSitOn.find(x => x.currentImage.id == idOfItemThatWasSatOn)
+                await this.pitchMusic(0, sec);
+                let r = Math.random();
+                let reactionSound = undefined;
+                if(r > .7) {
+                    reactionSound = this.context.model.playSound("ohno", 4);
+                } else if(r > .6) {
+                    reactionSound = this.context.model.playSound("whoops", 1);
+                } else if(r > .4) {
+                    reactionSound = this.context.model.playSound("ooh", 2);
+                } else {
+                    reactionSound = this.context.model.playSound("inhale", 2);
+                }
+
+                sitDown(sec);
+                await this.context.toolbox.waitForMS(sec * 2);
+
+                this.context.model.playSound("fart", 3);
+                await this.context.toolbox.waitForMS(sec * .8);
+                await this.pitchMusic(1, sec * 1.5);
+
+            } else {
+                this.context.model.playSound("ahh", 2);
+                await sitDown(sec * .5);
+            }
 
             //faster next
             sec *= secDecay;
@@ -317,6 +341,25 @@ export class Game {
         document.removeEventListener("click", this.onPlayerRequestedSit)
     }
 
+
+    async pitchMusic(newPitch, duration) {
+        let music = this.context.model.music;
+        let musicId = this.context.model.musicId;
+        if (!music || !music.playing(musicId)) return;
+
+        let currentPitch = music.rate();
+        const intervalMS = 30;
+        const steps = duration / intervalMS;
+        const rateStep = (newPitch - currentPitch) / steps;
+
+        for(let i = 0; i < steps; i++) {
+            await this.context.toolbox.waitForMS(intervalMS);
+            currentPitch += rateStep;
+            music.rate(currentPitch, musicId);
+        }
+
+        music.rate(currentPitch, musicId);
+    }
    
 
 

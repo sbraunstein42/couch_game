@@ -9,6 +9,7 @@ export class Model {
     empty = "empty";
     peopleOnCouch = [];
     spriteScale = 10;
+    itemMoveDelayMult = 3;
 
     //fast game
     // howManyContestants = 1;
@@ -86,7 +87,6 @@ export class Model {
         this.getRandomSound = this.getRandomSound.bind(this);
         this.playSound = this.playSound.bind(this);
         this.playTitleMusic = this.playTitleMusic.bind(this);
-        this.pitchDownMusicThenFart = this.pitchDownMusicThenFart.bind(this);
         this.restartMusic = this.restartMusic.bind(this);
 
         this.peopleOnCouch = [];
@@ -117,15 +117,18 @@ export class Model {
 
     getRandomSound(name, variantCount) {
         let variant = this.toolbox.getRandomInt(1, variantCount);
-        return ['../audio/' + name + variant + '.wav']
+        return ['../audio/' + name + variant + '.wav'];
     }
 
-    playSound(name, variantCount) {
+    async playSound(name, variantCount) {
         if(this.mute) return null;
 
         const sound = new Howl({
             src: this.getRandomSound(name, variantCount),
-            preload: true
+            preload: true,
+            // onload : () => {
+            //     console.log(sound.duration());
+            // }
         })
         sound.play();
         return sound;
@@ -134,7 +137,8 @@ export class Model {
     playTitleMusic() {
         this.music = new Howl({
             src: ['../audio/music/spanish_flea.mp3'],
-            preload: true
+            preload: true,
+            loop: true
         });
         this.musicId = this.music.play();
     }
@@ -145,32 +149,9 @@ export class Model {
         this.music.play(this.musicId);
     }
 
-    async pitchDownMusicThenFart() {
-        if (!this.music || !this.music.playing(this.musicId)) return;
 
-        const duration = 1000;
-        const interval = 30;
-        const targetRate = 0.05;
-        const steps = duration / interval;
-        const rateStep = (1.0 - targetRate) / steps;
-        let currentRate = 1.0;
 
-        await new Promise(resolve => {
-            const iv = setInterval(() => {
-                currentRate -= rateStep;
-                if (currentRate <= targetRate) {
-                    this.music.pause(this.musicId);
-                    clearInterval(iv);
-                    resolve();
-                } else {
-                    this.music.rate(currentRate, this.musicId);
-                }
-            }, interval);
-        });
-
-        await this.toolbox.waitForMS(800);
-        this.playSound("fart", 1);
-    }
+    
     
 
 

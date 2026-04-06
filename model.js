@@ -126,12 +126,12 @@ export class Model {
 
     playRandomSound(name, variantCount) {
         let variant = this.toolbox.getRandomInt(1, variantCount);
-        let src = ['../audio/' + name + variant + '.wav'];
+        let src = ['audio/' + name + variant + '.wav'];
         return this.playSound(src);
     }
 
     playHopSound() {
-        this.playSound(['../audio/hop.wav'], .25);
+        this.playSound(['audio/hop.wav'], .25);
     }
 
     playSound(src, volume, loop) {
@@ -153,7 +153,7 @@ export class Model {
 
     playTitleMusic() {
         this.music = new Howl({
-            src: ['../audio/music/spanish_flea.mp3'],
+            src: ['audio/music/spanish_flea.mp3'],
             preload: true,
             loop: true
         });
@@ -191,12 +191,12 @@ export class Model {
     }
 
     async playStaticSound(duration) {
-        this.playSound(['../audio/click.wav']);
-        let staticSound = this.playSound(['../audio/static.mp3'], .5, true);
+        this.playSound(['audio/click.wav']);
+        let staticSound = this.playSound(['audio/static.mp3'], .5, true);
         let delayBeforeClickOff = duration * .95;
         let delayBeforeStaticOff = duration * .05;
         await this.toolbox.waitForMS(delayBeforeClickOff);
-        this.playSound(['../audio/click.wav']);
+        this.playSound(['audio/click.wav']);
         await this.toolbox.waitForMS(delayBeforeStaticOff);
         staticSound.stop();
     }

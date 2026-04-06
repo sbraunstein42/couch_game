@@ -26,8 +26,6 @@ export class Game {
 
     //state
     howManyPeopleSatDown = 0;
-    tweens = [];
-    sprites = [];
     personPositionIndex;
     itemsByIndex;
 
@@ -53,7 +51,7 @@ export class Game {
         this.gameRoutine = this.gameRoutine.bind(this);
         this.onPlayerRequestedSit = this.onPlayerRequestedSit.bind(this);
         this.shiftItemsRoutine = this.shiftItemsRoutine.bind(this);
-        this.shiftPeopleRoutine = this.shiftPersonRoutine.bind(this);
+        this.shiftPeopleRoutine = this.shiftPeopleRoutine.bind(this);
         this.sortSprites = this.sortSprites.bind(this);
         this.pitchMusic = this.pitchMusic.bind(this);
         this.goToTitle = this.goToTitle.bind(this);
@@ -64,6 +62,7 @@ export class Game {
         this.people = [];
         this.positionsOnCouch = [];
         this.positionsBelowCouch = [];
+        this.sprites = [];
 
         this.isWaitingForSit = false;
 
@@ -180,7 +179,7 @@ export class Game {
 
     }
 
-    async shiftPersonRoutine(person, sec) {
+    async shiftPeopleRoutine(person, sec) {
             
         let shifts = 0;
 
@@ -191,7 +190,11 @@ export class Game {
             let indexInEmptyArray = (emptyIndexes.length-1) - (shifts % emptyIndexes.length);
             this.personPositionIndex = emptyIndexes[indexInEmptyArray];
             let posBelowCouch = this.positionsBelowCouch[this.personPositionIndex];
-            person.hopTo(posBelowCouch.x, posBelowCouch.y, sec * .25, 1);
+            let xOffset = 0;
+            if(emptyIndexes.length == 1) {
+                xOffset = 40;
+            }
+            person.hopTo(posBelowCouch.x + xOffset, posBelowCouch.y, sec * .25, 1);
 
             await this.context.toolbox.waitForMS(sec);
             shifts++;
@@ -201,7 +204,8 @@ export class Game {
     async gameRoutine() {
 
         let sec = 1000;
-        let secDecay = .75;
+        let shiftDurationMult = 1;
+        let shiftDurationDecay = .75;
         let spotlightX = this.context.canvas.width/2;
         let spotlightY = this.context.canvas.height * .7;
         let peopleGap = this.context.model.spriteScale * 15;
@@ -229,8 +233,8 @@ export class Game {
 
             //rotate items through couch positions
             this.isWaitingForSit = true;
-            this.shiftPersonRoutine(person, sec);
-            this.shiftItemsRoutine(sec * .5);
+            this.shiftPeopleRoutine(person, sec * shiftDurationMult);
+            this.shiftItemsRoutine(sec * .5 * shiftDurationMult);
             
             while(this.isWaitingForSit) {
                 await this.context.toolbox.waitForMS(10);
@@ -282,7 +286,7 @@ export class Game {
             }
 
             //faster next
-            sec *= secDecay;
+            shiftDurationMult *= shiftDurationDecay;
         }
 
         //wait for it to resolve
@@ -337,6 +341,7 @@ export class Game {
         for(let i = 0; i < this.sprites.length; i++) {
             this.sprites[i].stop();
         }
+        this.sprites = [];
         document.removeEventListener("click", this.onPlayerRequestedSit)
         this.context.model.stopTitleMusic();
     }

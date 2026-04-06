@@ -78,17 +78,25 @@ export class Model {
         "youWin5",
     ]
 
+    staticAnim = [
+        "static1",
+        "static2",
+        "static3"
+    ]
+
     constructor(toolbox) {
 
         this.toolbox = toolbox;
         
         this.setPersonInCouchIndex = this.setPersonInCouchIndex.bind(this);
         this.isCouchSpotEmpty = this.isCouchSpotEmpty.bind(this);
-        this.getRandomSound = this.getRandomSound.bind(this);
+        this.playRandomSound = this.playRandomSound.bind(this);
         this.playSound = this.playSound.bind(this);
         this.playTitleMusic = this.playTitleMusic.bind(this);
         this.restartMusic = this.restartMusic.bind(this);
         this.makeMusicQuiet = this.makeMusicQuiet.bind(this);
+        this.getEmptyIndexes = this.getEmptyIndexes.bind(this);
+        this.playStaticSound = this.playStaticSound.bind(this);
 
         this.peopleOnCouch = [];
         for(let i = 0; i < this.howManySpotsOnCouch; i++) {
@@ -116,22 +124,30 @@ export class Model {
         return this.couches.take();
     }
 
-    getRandomSound(name, variantCount) {
+    playRandomSound(name, variantCount) {
         let variant = this.toolbox.getRandomInt(1, variantCount);
-        return ['../audio/' + name + variant + '.wav'];
+        let src = ['../audio/' + name + variant + '.wav'];
+        return this.playSound(src);
     }
 
-    async playSound(name, variantCount) {
+    playHopSound() {
+        this.playSound(['../audio/hop.wav'], .25);
+    }
+
+    playSound(src, volume, loop) {
         if(this.mute) return null;
 
         const sound = new Howl({
-            src: this.getRandomSound(name, variantCount),
+            src: src,
             preload: true,
-            // onload : () => {
-            //     console.log(sound.duration());
-            // }
+            loop : loop
         })
-        sound.play();
+        let pitch = Math.random() * .1 + .95;
+        sound.volume(volume ?? 1);
+
+        let id = sound.play(); 
+        sound.rate(pitch, id);
+
         return sound;
     }
 
@@ -145,11 +161,16 @@ export class Model {
         this.musicId = this.music.play();
     }
 
+    stopTitleMusic() {
+        this.music.stop();
+        this.music = undefined;
+    }
+
     makeMusicQuiet() {
         if(!this.music) this.playTitleMusic();
 
         if(this.mute) return;
-        this.music.volume(0.75);
+        this.music.volume(0.3);
     }
 
     restartMusic() {
@@ -157,6 +178,29 @@ export class Model {
         this.music.rate(1.0, this.musicId);
         this.music.play(this.musicId);
     }
+
+    //need an array of the indexes that are empty on the couch.
+    getEmptyIndexes() {
+        let emptyIndexes = [];
+        for(let i = 0; i < this.howManySpotsOnCouch; i++) {
+            if(this.isCouchSpotEmpty(i)) {
+                emptyIndexes.push(i);
+            }
+        }
+        return emptyIndexes;
+    }
+
+    async playStaticSound(duration) {
+        this.playSound(['../audio/click.wav']);
+        let staticSound = this.playSound(['../audio/static.mp3'], .5, true);
+        let delayBeforeClickOff = duration * .95;
+        let delayBeforeStaticOff = duration * .05;
+        await this.toolbox.waitForMS(delayBeforeClickOff);
+        this.playSound(['../audio/click.wav']);
+        await this.toolbox.waitForMS(delayBeforeStaticOff);
+        staticSound.stop();
+    }
+
 
 
 

@@ -1,5 +1,4 @@
 import { Game } from "./states/game.js";
-import { GameOver } from "./states/gameOver.js";
 import { Title } from "./states/title.js";
 import { Toolbox } from "./helpers/toolbox.js";
 import { Model } from "./model.js";
@@ -24,12 +23,11 @@ context.pencil.imageSmoothingEnabled = false;
 //make states
 let states = {
     game : new Game(context),
-    gameOver : new GameOver(context),
     title : new Title(context)
 }
 
 //enter title
-let currentState = states.game;
+let currentState = states.title;
 
 function gameLoop(timeStamp) {
     context.deltaTimeMS = timeStamp - lastTime;

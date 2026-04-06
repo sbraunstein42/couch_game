@@ -32,6 +32,7 @@ export class Game {
     itemsByIndex;
 
     isWaitingForSit = false;
+    isWaitingForRestart = false;
 
     //layers
     renderOrders = {
@@ -55,6 +56,7 @@ export class Game {
         this.shiftPeopleRoutine = this.shiftPersonRoutine.bind(this);
         this.sortSprites = this.sortSprites.bind(this);
         this.pitchMusic = this.pitchMusic.bind(this);
+        this.goToTitle = this.goToTitle.bind(this);
     }
 
     enter() {
@@ -63,6 +65,7 @@ export class Game {
         this.positionsOnCouch = [];
         this.positionsBelowCouch = [];
 
+        this.isWaitingForSit = false;
 
         if(!this.context.model.music) {
             this.context.model.playTitleMusic();
@@ -75,6 +78,7 @@ export class Game {
             // sprite.showBounds = true;
             sprite.setPosition(this.context.canvas.width/2, -100);
             sprite.renderOrder = this.renderOrders.itemOnCouch;
+            sprite.mute = true;
             this.thingsYouCanSitOn.push(sprite);
             this.sprites.push(sprite);
         }
@@ -133,41 +137,35 @@ export class Game {
     async shiftItemsRoutine(sec) {
         let shifts = 0;
 
-        let emptyPositionsOnCouch = this.positionsOnCouch.filter((x, i) => {
-            return this.context.model.isCouchSpotEmpty(i);
-        });
+        let emptyIndexes = this.context.model.getEmptyIndexes();
+        let emptyPositionsOnCouch = emptyIndexes.map(x => this.positionsOnCouch[x]);
 
         let hopHeight = -30;
+        let isLastSpot = false;
+
 
         if(emptyPositionsOnCouch.length == 1) {
             hopHeight = -100;
-            let behindPos = {
-                x: emptyPositionsOnCouch[0].x,
-                y: emptyPositionsOnCouch[0].y,
-                isBehind : true,
-            }
-            emptyPositionsOnCouch.push(behindPos)
+            isLastSpot = true;
         }
 
         while(this.isWaitingForSit) {
-            //remove filled positions
-            
-            if(emptyPositionsOnCouch.length < this.thingsYouCanSitOn.length) {
-                throw new Error("Too many items, not enfough spaces?");
-            }
-            this.itemsByIndex = {};
+            this.itemsByIndex = [];
 
-           
             for(let j = 0; j < this.thingsYouCanSitOn.length; j++) {
                 let thing = this.thingsYouCanSitOn[j];
-                let posOnCouchIndex = (j + shifts) % emptyPositionsOnCouch.length;
+                let posInEmptyArray = (j + shifts) % emptyIndexes.length;
+                let posOnCouchIndex = emptyIndexes[posInEmptyArray];
+
+                let isGoingBehindCouch = isLastSpot && (shifts % 2 == 1);
+
                 this.itemsByIndex[posOnCouchIndex] = thing.currentImage.id;
-                let posOnCouch = emptyPositionsOnCouch[posOnCouchIndex];
-                let hopTime = sec * .3;
+                let posOnCouch = emptyPositionsOnCouch[posInEmptyArray];
+                let hopTime = sec * .5;
                 thing.hopHeight = hopHeight;
                 thing.hopTo(posOnCouch.x, posOnCouch.y, hopTime, 1);
                 setTimeout(() => {
-                    let order = posOnCouch.isBehind ? this.renderOrders.behindCouch : this.renderOrders.itemOnCouch;
+                    let order = isGoingBehindCouch ? this.renderOrders.behindCouch : this.renderOrders.itemOnCouch;
                     let changedOrder = order !== thing.renderOrder;
                     thing.renderOrder = order;
                     if(changedOrder) {
@@ -189,13 +187,7 @@ export class Game {
         while(this.isWaitingForSit) {
 
             //remove filled positions
-            let emptyIndexes = [];
-            for(let i = 0; i < this.context.model.howManySpotsOnCouch; i++) {
-                if(this.context.model.isCouchSpotEmpty(i)) {
-                    emptyIndexes.push(i);
-                }
-            }
-
+            let emptyIndexes = this.context.model.getEmptyIndexes();
             let indexInEmptyArray = (emptyIndexes.length-1) - (shifts % emptyIndexes.length);
             this.personPositionIndex = emptyIndexes[indexInEmptyArray];
             let posBelowCouch = this.positionsBelowCouch[this.personPositionIndex];
@@ -215,7 +207,7 @@ export class Game {
         let peopleGap = this.context.model.spriteScale * 15;
         let peopleWaitingY = this.context.canvas.height - (this.peopleHeight * .6);
         
-        this.context.model.playSound("ready", 1);
+        this.context.model.playRandomSound("ready", 1);
 
         //people get into waiting position
         for(let i = 0; i < this.people.length; i++) {
@@ -258,36 +250,34 @@ export class Game {
                 this.sortSprites();
             }
 
-            console.log("ON SAT DOWN....")
-            console.log(this.personPositionIndex + " for person");
-            console.log("ITEMS BY INDEX:")
-            console.log(this.itemsByIndex);
-            console.log(idOfItemThatWasSatOn)
-
             if(idOfItemThatWasSatOn) {
                 let itemSatOn = this.thingsYouCanSitOn.find(x => x.currentImage.id == idOfItemThatWasSatOn)
-                await this.pitchMusic(0, sec);
+                await this.pitchMusic(0, sec * 1.25);
                 let r = Math.random();
                 let reactionSound = undefined;
-                if(r > .7) {
-                    reactionSound = this.context.model.playSound("ohno", 4);
-                } else if(r > .6) {
-                    reactionSound = this.context.model.playSound("whoops", 1);
-                } else if(r > .4) {
-                    reactionSound = this.context.model.playSound("ooh", 2);
+                if(r > .5) {
+                    reactionSound = this.context.model.playRandomSound("ohno", 4);
+                } else if(r > .3) {
+                    reactionSound = this.context.model.playRandomSound("whoops", 1);
                 } else {
-                    reactionSound = this.context.model.playSound("inhale", 2);
+                    reactionSound = this.context.model.playRandomSound("inhale", 2);
                 }
 
                 sitDown(sec);
-                await this.context.toolbox.waitForMS(sec * 2);
+                //awkward pause
+                await this.context.toolbox.waitForMS(sec * 2.5);
 
-                this.context.model.playSound("fart", 3);
-                await this.context.toolbox.waitForMS(sec * 3);
-                await this.pitchMusic(1, sec * 1.5);
+                itemSatOn.shake(10, sec * 2);
+                this.context.model.playRandomSound("fart", 3);
+                await this.context.toolbox.waitForMS(sec * 2);
+                await this.pitchMusic(1, sec * 2);
 
             } else {
-                this.context.model.playSound("ahh", 2);
+                if(Math.random() > .5) {
+                    this.context.model.playRandomSound("ooh", 2);
+                } else {
+                    this.context.model.playRandomSound("ahh", 2);
+                }
                 await sitDown(sec * .5);
             }
 
@@ -316,11 +306,19 @@ export class Game {
         this.youWinAnim.setPosition(middleX, middleY);
         this.sprites.push(this.youWinAnim);
         this.sortSprites();
-        this.context.model.playSound("yay", 2);
+        this.context.model.playRandomSound("yay", 2);
         let youWinIntroTime = this.youWinAnim.play(winAnimIds, 4, 1);
         await this.context.toolbox.waitForMS(youWinIntroTime);
         this.youWinAnim.play(this.context.model.youWinWiggleAnim, 6, -1);
 
+        await this.context.toolbox.waitForMS(2000);
+
+        document.addEventListener("click", this.goToTitle);
+    }
+
+    goToTitle() {
+        document.removeEventListener("click", this.goToTitle)
+        this.command = "title";
     }
 
     sortSprites() {
@@ -331,13 +329,16 @@ export class Game {
         for(let i = 0; i < this.sprites.length; i++) {
             this.sprites[i].draw();
         }
+        return this.command;
     }
 
     exit() {
+        //stop all the sprites, we're out of here
         for(let i = 0; i < this.sprites.length; i++) {
             this.sprites[i].stop();
         }
         document.removeEventListener("click", this.onPlayerRequestedSit)
+        this.context.model.stopTitleMusic();
     }
 
 
@@ -347,7 +348,7 @@ export class Game {
         if (!music || !music.playing(musicId)) return;
 
         let currentPitch = music.rate(musicId);
-        const intervalMS = 30;
+        const intervalMS = 50;
         const steps = duration / intervalMS;
         const rateStep = (newPitch - currentPitch) / steps;
 

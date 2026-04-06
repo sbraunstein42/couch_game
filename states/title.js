@@ -4,8 +4,15 @@ import '../helpers/howler.min.js';
 export class Title {
 
     context;
+
+    staticSprite;
     titleAnim;
+    clickSprite;
+    
     command;
+    middleX;
+    middleY;
+
 
     constructor(context) {
         this.context = context;
@@ -15,22 +22,39 @@ export class Title {
         this.update = this.update.bind(this);
         this.showTitle = this.showTitle.bind(this);
         this.titleComplete = this.titleComplete.bind(this);
+
+        this.middleX = this.context.canvas.width / 2;
+        this.middleY = this.context.canvas.height / 2;
+    }
+
+    async playStatic(duration) {
+
+        let staticAnim = this.context.model.staticAnim;
+        this.staticSprite = new Sprite(this.context, staticAnim[0], this.context.model.spriteScale);
+        this.staticSprite.setPosition(this.middleX, this.middleY);
+        this.staticSprite.play(staticAnim, 30, -1);
+        await this.context.model.playStaticSound(duration);
+        this.staticSprite = undefined;
+
     }
 
     async showTitle() {
+
+        await this.playStatic(500);
+
+        this.clickSprite = undefined;
 
         document.removeEventListener("click", this.showTitle)
 
         let titleAppearAnim = this.context.model.titleAnim;
         this.titleAnim = new Sprite(this.context, titleAppearAnim[0], this.context.model.spriteScale);
         this.titleAnim.setPivot(.5,.5)
+
         // this.titleAnim.showBounds = true;
 
-        let middleX = this.context.canvas.width / 2;
-        let middleY = this.context.canvas.height / 2;
-        this.titleAnim.setPosition(middleX, middleY);
+        this.titleAnim.setPosition(this.middleX, this.middleY);
 
-        this.context.model.playSound("title", 6);
+        this.context.model.playRandomSound("title", 6);
         this.context.model.playTitleMusic();
 
         // play(pathsForAnimationFrames, fps, loops, onComplete) {
@@ -66,12 +90,23 @@ export class Title {
     enter() {
         console.log("Entered title.");
         document.addEventListener("click", this.showTitle)
+
+        this.clickSprite = new Sprite(this.context, "titleClick", this.context.model.spriteScale);
+        this.clickSprite.setPosition(this.middleX, this.middleY);
+
     }
 
-    exit() {}
+    exit() {
+        this.titleAnim.stop();
+        this.titleAnim = undefined;
+        this.clickSprite = undefined;
+        this.staticSprite = undefined;
+    }
 
     update() {
         this.titleAnim?.draw();
+        this.clickSprite?.draw();
+        this.staticSprite?.draw();
         return this.command;
     }
 

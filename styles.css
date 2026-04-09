@@ -1,7 +1,21 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 body {
     background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
 }
 
 #myCanvas {
-    border: 2px solid gray;
+    /* border: 2px solid gray; */
+    width: min(100vw, 100vh);
+    height: min(100vw, 100vh);
+    image-rendering: pixelated;
 }

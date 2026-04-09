@@ -5,7 +5,8 @@ export class Title {
 
     context;
 
-    staticSprite;
+    staticSpriteLeft;
+    staticSpriteRight;
     titleAnim;
     clickSprite;
     
@@ -30,11 +31,20 @@ export class Title {
     async playStatic(duration) {
 
         let staticAnim = this.context.model.staticAnim;
-        this.staticSprite = new Sprite(this.context, staticAnim[0], this.context.model.spriteScale);
-        this.staticSprite.setPosition(this.middleX, this.middleY);
-        this.staticSprite.play(staticAnim, 30, -1);
+
+        this.staticSpriteLeft = new Sprite(this.context, staticAnim[0], this.context.model.spriteScale);
+        this.staticSpriteLeft.setPivot(1, 0.5);
+        this.staticSpriteLeft.setPosition(this.middleX, this.middleY);
+        this.staticSpriteLeft.play(staticAnim, 30, -1);
+
+        this.staticSpriteRight = new Sprite(this.context, staticAnim[0], this.context.model.spriteScale);
+        this.staticSpriteRight.setPivot(0, 0.5);
+        this.staticSpriteRight.setPosition(this.middleX, this.middleY);
+        this.staticSpriteRight.play(staticAnim, 30, -1);
+
         await this.context.model.playStaticSound(duration);
-        this.staticSprite = undefined;
+        this.staticSpriteLeft = undefined;
+        this.staticSpriteRight = undefined;
 
     }
 
@@ -92,6 +102,7 @@ export class Title {
         document.addEventListener("click", this.showTitle)
 
         this.clickSprite = new Sprite(this.context, "titleClick", this.context.model.spriteScale);
+        // this.clickSprite.showBounds = true;
         this.clickSprite.setPosition(this.middleX, this.middleY);
 
     }
@@ -100,13 +111,15 @@ export class Title {
         this.titleAnim.stop();
         this.titleAnim = undefined;
         this.clickSprite = undefined;
-        this.staticSprite = undefined;
+        this.staticSpriteLeft = undefined;
+        this.staticSpriteRight = undefined;
     }
 
     update() {
         this.titleAnim?.draw();
         this.clickSprite?.draw();
-        this.staticSprite?.draw();
+        this.staticSpriteLeft?.draw();
+        this.staticSpriteRight?.draw();
         return this.command;
     }
 

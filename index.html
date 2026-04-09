@@ -4,7 +4,7 @@
     </head>
     <body>
         <!-- page elements -->
-        <canvas id="myCanvas" height="1000" width = "1000"></canvas>
+        <canvas id="myCanvas" height="900" width = "1600"></canvas>
 
         <!-- audio -->
         <audio id="spanish_flea" src="./audio/music/spanish_flea.mp3" preload="auto"></audio>
@@ -48,13 +48,19 @@
         <audio id="yay2" src="./audio/yay2.wav" preload="auto"></audio>
 
         <!-- sprites -->
+        <img id = "ricky_head" src="./sprites/ricky/ricky-head.png" hidden>
+
          
         <img id = "static1" src="./sprites/effects/static1.png" hidden>
         <img id = "static2" src="./sprites/effects/static2.png" hidden>
         <img id = "static3" src="./sprites/effects/static3.png" hidden>
 
         <img id = "couch_orange" src="./sprites/couches/orange.png" hidden>
+        <img id = "couch_red" src="./sprites/couches/red.png" hidden>
+        <img id = "couch_pink" src="./sprites/couches/pink.png" hidden>
         
+        <img id = "balloon" src="./sprites/effects/balloon.png" hidden>
+
         <img id = "japaneseStar1" src="./sprites/effects/japaneseStar1.png" hidden>
         <img id = "japaneseStar2" src="./sprites/effects/japaneseStar2.png" hidden>
 
@@ -74,17 +80,75 @@
         <img id = "title6" src="./sprites/title/titleAnimation6.png" hidden>
         <img id = "title7" src="./sprites/title/titleAnimation7.png" hidden>
 
-        <img id = "people_fish" src="./sprites/people/fish.png" hidden>
-        <img id = "people_green" src="./sprites/people/green.png" hidden>
-        <img id = "people_pink" src="./sprites/people/pink.png" hidden>
-        <img id = "people_robot" src="./sprites/people/robot.png" hidden>
+        <img id = "fish" src="./sprites/people/fish/fish.png" hidden>
+        <img id = "fish_sit" src="./sprites/people/fish/fish_sit.png" hidden>
+        <img id = "fish_surprise" src="./sprites/people/fish/fish_surprise.png" hidden>
+        <img id = "fish_think" src="./sprites/people/fish/fish_think.png" hidden>
 
-        <img id = "sittable_balloon" src="./sprites/sittables/balloon.png" hidden>
+        <img id = "green" src="./sprites/people/green/green.png" hidden>
+        <img id = "green_sit" src="./sprites/people/green/green_sit.png" hidden>
+        <img id = "green_surprise" src="./sprites/people/green/green_surprise.png" hidden>
+        <img id = "green_think" src="./sprites/people/green/green_think.png" hidden>
+
+        <img id = "pink" src="./sprites/people/pink/pink.png" hidden>
+        <img id = "pink_sit" src="./sprites/people/pink/pink_sit.png" hidden>
+        <img id = "pink_surprise" src="./sprites/people/pink/pink_surprise.png" hidden>
+        <img id = "pink_think" src="./sprites/people/pink/pink_think.png" hidden>
+
+        <img id = "robot" src="./sprites/people/robot/robot.png" hidden>
+        <img id = "robot_sit" src="./sprites/people/robot/robot_sit.png" hidden>
+        <img id = "robot_surprise" src="./sprites/people/robot/robot_surprise.png" hidden>
+        <img id = "robot_think" src="./sprites/people/robot/robot_think.png" hidden>
+
+        <img id = "blue" src="./sprites/people/blue/blue.png" hidden>
+        <img id = "blue_sit" src="./sprites/people/blue/blue_sit.png" hidden>
+        <img id = "blue_surprise" src="./sprites/people/blue/blue_surprise.png" hidden>
+        <img id = "blue_thinking" src="./sprites/people/blue/blue_thinking.png" hidden>
+
         <img id = "sittable_cake" src="./sprites/sittables/cake.png" hidden>
+        <img id = "sittable_cake_1" src="./sprites/sittables/pieces/cake/cake_1.png" hidden>
+        <img id = "sittable_cake_2" src="./sprites/sittables/pieces/cake/cake_2.png" hidden>
+        <img id = "sittable_cake_3" src="./sprites/sittables/pieces/cake/cake_3.png" hidden>
+        <img id = "sittable_cake_4" src="./sprites/sittables/pieces/cake/cake_4.png" hidden>
+        <img id = "sittable_cake_5" src="./sprites/sittables/pieces/cake/cake_5.png" hidden>
+        <img id = "sittable_cake_6" src="./sprites/sittables/pieces/cake/cake_6.png" hidden>
+
         <img id = "sittable_car" src="./sprites/sittables/car.png" hidden>
+        <img id = "sittable_car_1" src="./sprites/sittables/pieces/car/car_1.png" hidden>
+        <img id = "sittable_car_2" src="./sprites/sittables/pieces/car/car_2.png" hidden>
+        <img id = "sittable_car_3" src="./sprites/sittables/pieces/car/car_3.png" hidden>
+        <img id = "sittable_car_4" src="./sprites/sittables/pieces/car/car_4.png" hidden>
+        <img id = "sittable_car_5" src="./sprites/sittables/pieces/car/car_5.png" hidden>
+
         <img id = "sittable_earth" src="./sprites/sittables/earth.png" hidden>
+        <img id = "sittable_earth_1" src="./sprites/sittables/pieces/earth/earth_1.png" hidden>
+        <img id = "sittable_earth_2" src="./sprites/sittables/pieces/earth/earth_2.png" hidden>
+        <img id = "sittable_earth_3" src="./sprites/sittables/pieces/earth/earth_3.png" hidden>
+        <img id = "sittable_earth_4" src="./sprites/sittables/pieces/earth/earth_4.png" hidden>
+        <img id = "sittable_earth_5" src="./sprites/sittables/pieces/earth/earth_5.png" hidden>
+        <img id = "sittable_earth_6" src="./sprites/sittables/pieces/earth/earth_6.png" hidden>
+
         <img id = "sittable_hamburger" src="./sprites/sittables/hamburger.png" hidden>
+        <img id = "sittable_hamburger_1" src="./sprites/sittables/pieces/hamburger/hamburger_1.png" hidden>
+        <img id = "sittable_hamburger_2" src="./sprites/sittables/pieces/hamburger/hamburger_2.png" hidden>
+        <img id = "sittable_hamburger_3" src="./sprites/sittables/pieces/hamburger/hamburger_3.png" hidden>
+        <img id = "sittable_hamburger_4" src="./sprites/sittables/pieces/hamburger/hamburger_4.png" hidden>
+
+        <img id = "sittable_pasta" src="./sprites/sittables/pasta.png" hidden>
+        <img id = "sittable_pasta_1" src="./sprites/sittables/pieces/pasta/pasta_1.png" hidden>
+        <img id = "sittable_pasta_2" src="./sprites/sittables/pieces/pasta/pasta_2.png" hidden>
+        <img id = "sittable_pasta_3" src="./sprites/sittables/pieces/pasta/pasta_3.png" hidden>
+        <img id = "sittable_pasta_4" src="./sprites/sittables/pieces/pasta/pasta_4.png" hidden>
+        <img id = "sittable_pasta_5" src="./sprites/sittables/pieces/pasta/pasta_5.png" hidden>
+        <img id = "sittable_pasta_6" src="./sprites/sittables/pieces/pasta/pasta_6.png" hidden>
+
+        <img id = "sittable_spaghetti" src="./sprites/sittables/spaghetti.png" hidden>
+
         <img id = "sittable_turtle" src="./sprites/sittables/turtle.png" hidden>
+        <img id = "sittable_turtle_1" src="./sprites/sittables/pieces/turtle/turtle_1.png" hidden>
+        <img id = "sittable_turtle_2" src="./sprites/sittables/pieces/turtle/turtle_2.png" hidden>
+        <img id = "sittable_turtle_3" src="./sprites/sittables/pieces/turtle/turtle_3.png" hidden>
+        <img id = "sittable_turtle_4" src="./sprites/sittables/pieces/turtle/turtle_4.png" hidden>
 
         <!-- plugins -->
         <script type="module" src="helpers/tween.esm.js"></script>

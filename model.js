@@ -198,7 +198,7 @@ export class Model {
         await this.toolbox.waitForMS(delayBeforeClickOff);
         this.playSound(['audio/click.wav']);
         await this.toolbox.waitForMS(delayBeforeStaticOff);
-        staticSound.stop();
+        staticSound?.stop();
     }
 
 

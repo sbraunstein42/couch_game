@@ -16,6 +16,8 @@ export class Sprite {
     // showBounds = true;
 
     renderOrder = 0;
+    rotation = 0;
+    alpha = 1;
 
 
 
@@ -89,9 +91,23 @@ export class Sprite {
 
     draw() {
         if (!this.currentImage || !this.currentImage.complete) return;
-    
-        this.context.pencil.drawImage(this.currentImage, this.x, this.y, this.width, this.height);
-    
+
+        const pencil = this.context.pencil;
+        pencil.save();
+        pencil.globalAlpha = this.alpha;
+
+        if (this.rotation !== 0) {
+            const cx = this.x + this.width / 2;
+            const cy = this.y + this.height / 2;
+            pencil.translate(cx, cy);
+            pencil.rotate(this.rotation);
+            pencil.drawImage(this.currentImage, -this.width / 2, -this.height / 2, this.width, this.height);
+        } else {
+            pencil.drawImage(this.currentImage, this.x, this.y, this.width, this.height);
+        }
+
+        pencil.restore();
+
         if(this.showBounds) {
             let markerSize = 10;
             let bounds = this.getBounds()

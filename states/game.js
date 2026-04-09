@@ -1,6 +1,7 @@
 import { Sprite } from "../helpers/sprite.js";
 import { HoppingSprite } from "../helpers/hoppingSprite.js";
 import { Person } from "../helpers/person.js";
+import * as TWEEN from "../helpers/tween.esm.js";
 
 export class Game {
 
@@ -40,7 +41,8 @@ export class Game {
         youWinAnim : 15,
         sittingOnCouch : 20,
         itemOnCouch : 30,
-        inFrontOfCouch : 40
+        inFrontOfCouch : 40,
+        pieces : 50
     }
 
 
@@ -277,6 +279,8 @@ export class Game {
 
                 itemSatOn.shake(10, sec * 2);
                 person.setSurprise();
+                this.explodeSittable(itemSatOn);
+                this.replaceExplodedSittable(itemSatOn);
                 this.context.model.playRandomSound("fart", 3);
                 await this.context.toolbox.waitForMS(sec * 2);
                 person.setSit();
@@ -352,6 +356,68 @@ export class Game {
         this.context.model.stopTitleMusic();
     }
 
+
+    replaceExplodedSittable(explodedSittable) {
+        this.sprites = this.sprites.filter(s => s !== explodedSittable);
+
+        const newId = this.context.model.sittables.take();
+        const newSprite = new HoppingSprite(this.context, newId, this.context.model.spriteScale);
+        newSprite.setPosition(this.context.canvas.width / 2, -100);
+        newSprite.renderOrder = this.renderOrders.itemOnCouch;
+        newSprite.mute = true;
+
+        const index = this.thingsYouCanSitOn.indexOf(explodedSittable);
+        this.thingsYouCanSitOn[index] = newSprite;
+
+        this.sprites.push(newSprite);
+        this.sortSprites();
+    }
+
+    explodeSittable(sittable) {
+        const pieceIds = this.context.model.getPiecesFor(sittable.currentImage.id);
+        if (!pieceIds) return;
+
+        sittable.alpha = 0;
+
+        const cx = sittable.x + sittable.width / 2;
+        const cy = sittable.y + sittable.height / 2;
+        const durationMS = 1400;
+        const gravityPxPerSec2 = 600;
+        const fadeStartPhase = 0.5;
+
+        pieceIds.forEach((id, i) => {
+            const piece = new Sprite(this.context, id, this.context.model.spriteScale);
+            piece.setPivot(0.5, 0.5);
+            piece.setPosition(cx, cy);
+            piece.renderOrder = this.renderOrders.pieces;
+            this.sprites.push(piece);
+            this.sortSprites();
+
+            const angle = (Math.PI * 2 / pieceIds.length) * i + (Math.random() - 0.5) * 0.6;
+            const speed = this.context.toolbox.getRandomInRange(100, 300);
+            const vx = Math.cos(angle) * speed;
+            const vy = Math.sin(angle) * speed - 250; // bias upward
+            const targetRotation = (Math.random() - 0.5) * Math.PI * 0.6;
+            const startX = piece.x;
+            const startY = piece.y;
+
+            const state = { phase: 0 };
+            this.context.tweens.push(new TWEEN.Tween(state)
+                .to({ phase: 1 }, durationMS)
+                .onUpdate(() => {
+                    const t = state.phase * (durationMS / 1000);
+                    piece.x = startX + vx * t;
+                    piece.y = startY + vy * t + 0.5 * gravityPxPerSec2 * t * t;
+                    piece.rotation = targetRotation * state.phase;
+                    piece.alpha = state.phase < fadeStartPhase ? 1 : 1 - ((state.phase - fadeStartPhase) / (1 - fadeStartPhase));
+                })
+                .onComplete(() => {
+                    this.sprites = this.sprites.filter(s => s !== piece);
+                })
+                .start()
+            );
+        });
+    }
 
     async pitchMusic(newPitch, duration) {
         let music = this.context.model.music;

@@ -35,10 +35,11 @@ export class Model {
     ])
 
     people = new Deck([
-        "people_fish",
-        "people_green",
-        "people_pink",
-        "people_robot"
+        "fish",
+        "green",
+        "pink",
+        "robot",
+        "blue"
     ]);
 
     couches = new Deck([

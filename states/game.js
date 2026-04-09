@@ -95,6 +95,8 @@ export class Game {
         for(let i = 0; i < peopleIds.length; i++) {
             let id = peopleIds[i];
             let sprite = new Person(this.context, id, this.context.model.spriteScale);
+            sprite.setAnimations(id);
+            sprite.setIdle();
             sprite.renderOrder = this.renderOrders.inFrontOfCouch;
             // sprite.showBounds = true;
             this.people.push(sprite);
@@ -230,6 +232,7 @@ export class Game {
             if (i > 0) this.context.model.restartMusic();
             person.hopTo(spotlightX, spotlightY, sec, 7);
             await this.context.toolbox.waitForMS(sec);
+            person.setThink();
 
             //rotate items through couch positions
             this.isWaitingForSit = true;
@@ -250,6 +253,7 @@ export class Game {
                 person.hopTo(onCouchPos.x, onCouchPos.y, sitDownDurationMS, 4);
                 this.context.model.setPersonInCouchIndex(this.personPositionIndex, person.currentImage.id);
                 await this.context.toolbox.waitForMS(sitDownDurationMS);
+                person.setSit();
                 person.renderOrder = this.renderOrders.sittingOnCouch;
                 this.sortSprites();
             }
@@ -272,8 +276,10 @@ export class Game {
                 await this.context.toolbox.waitForMS(sec * 2.5);
 
                 itemSatOn.shake(10, sec * 2);
+                person.setSurprise();
                 this.context.model.playRandomSound("fart", 3);
                 await this.context.toolbox.waitForMS(sec * 2);
+                person.setSit();
                 await this.pitchMusic(1, sec * 2);
 
             } else {

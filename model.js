@@ -78,6 +78,15 @@ export class Model {
         "youWin5",
     ]
 
+    sittablePieces = {
+        "sittable_cake":      ["sittable_cake_1", "sittable_cake_2", "sittable_cake_3", "sittable_cake_4", "sittable_cake_5", "sittable_cake_6"],
+        "sittable_car":       ["sittable_car_1", "sittable_car_2", "sittable_car_3", "sittable_car_4", "sittable_car_5"],
+        "sittable_earth":     ["sittable_earth_1", "sittable_earth_2", "sittable_earth_3", "sittable_earth_4", "sittable_earth_5", "sittable_earth_6"],
+        "sittable_hamburger": ["sittable_hamburger_1", "sittable_hamburger_2", "sittable_hamburger_3", "sittable_hamburger_4"],
+        "sittable_pasta":     ["sittable_pasta_1", "sittable_pasta_2", "sittable_pasta_3", "sittable_pasta_4", "sittable_pasta_5", "sittable_pasta_6"],
+        "sittable_turtle":    ["sittable_turtle_1", "sittable_turtle_2", "sittable_turtle_3", "sittable_turtle_4"],
+    }
+
     staticAnim = [
         "static1",
         "static2",
@@ -118,6 +127,10 @@ export class Model {
 
     getRandomPeople(howMany) {
         return this.people.takeMultiple(howMany);
+    }
+
+    getPiecesFor(sittableId) {
+        return this.sittablePieces[sittableId];
     }
 
     getRandomCouch() {

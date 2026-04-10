@@ -61,6 +61,8 @@ export class Game {
         this.sortSprites = this.sortSprites.bind(this);
         this.pitchMusic = this.pitchMusic.bind(this);
         this.goToTitle = this.goToTitle.bind(this);
+        this.onPlayerRequestedSitOnKey = this.onPlayerRequestedSitOnKey.bind(this);
+        this.goToTitleOnKey = this.goToTitleOnKey.bind(this);
     }
 
     enter() {
@@ -131,7 +133,8 @@ export class Game {
             this.positionsBelowCouch.push({x : currX, y : onCouchY + 100})
         }
 
-        document.addEventListener("click", this.onPlayerRequestedSit)
+        document.addEventListener("click", this.onPlayerRequestedSit);
+        document.addEventListener("keydown", this.onPlayerRequestedSitOnKey);
 
         this.context.model.makeMusicQuiet();
 
@@ -143,6 +146,10 @@ export class Game {
 
     onPlayerRequestedSit() {
         this.isWaitingForSit = false;
+    }
+
+    onPlayerRequestedSitOnKey(e) {
+        if (e.key.toLowerCase() === this.context.model.actionKey.toLowerCase()) this.onPlayerRequestedSit();
     }
 
     async shiftItemsRoutine(sec) {
@@ -345,11 +352,17 @@ export class Game {
         await this.context.toolbox.waitForMS(2000);
 
         document.addEventListener("click", this.goToTitle);
+        document.addEventListener("keydown", this.goToTitleOnKey);
     }
 
     goToTitle() {
-        document.removeEventListener("click", this.goToTitle)
+        document.removeEventListener("click", this.goToTitle);
+        document.removeEventListener("keydown", this.goToTitleOnKey);
         this.command = "title";
+    }
+
+    goToTitleOnKey(e) {
+        if (e.key.toLowerCase() === this.context.model.actionKey.toLowerCase()) this.goToTitle();
     }
 
     sortSprites() {
@@ -385,7 +398,8 @@ export class Game {
             this.sprites[i].stop();
         }
         this.sprites = [];
-        document.removeEventListener("click", this.onPlayerRequestedSit)
+        document.removeEventListener("click", this.onPlayerRequestedSit);
+        document.removeEventListener("keydown", this.onPlayerRequestedSitOnKey);
         this.context.model.stopTitleMusic();
     }
 

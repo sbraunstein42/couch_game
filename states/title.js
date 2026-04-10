@@ -23,6 +23,8 @@ export class Title {
         this.update = this.update.bind(this);
         this.showTitle = this.showTitle.bind(this);
         this.titleComplete = this.titleComplete.bind(this);
+        this.showTitleOnKey = this.showTitleOnKey.bind(this);
+        this.titleCompleteOnKey = this.titleCompleteOnKey.bind(this);
 
         this.middleX = this.context.canvas.width / 2;
         this.middleY = this.context.canvas.height / 2;
@@ -54,7 +56,8 @@ export class Title {
 
         this.clickSprite = undefined;
 
-        document.removeEventListener("click", this.showTitle)
+        document.removeEventListener("click", this.showTitle);
+        document.removeEventListener("keydown", this.showTitleOnKey);
 
         let titleAppearAnim = this.context.model.titleAnim;
         this.titleAnim = new Sprite(this.context, titleAppearAnim[0], this.context.model.spriteScale);
@@ -77,6 +80,7 @@ export class Title {
         //goes forever, but we wait for a click
         this.titleAnim.play(this.context.model.titleWiggleAnim, 6, -1);
         document.addEventListener("click", this.titleComplete);
+        document.addEventListener("keydown", this.titleCompleteOnKey);
 
         // // play(pathsForAnimationFrames, fps, loops, onComplete) {
         // this.titleAnim.play(titleAppearAnim, 1.5, 1, () => {
@@ -94,12 +98,22 @@ export class Title {
     titleComplete() {
         this.titleAnim.stop();
         document.removeEventListener("click", this.titleComplete);
+        document.removeEventListener("keydown", this.titleCompleteOnKey);
         this.command = "game";
+    }
+
+    showTitleOnKey(e) {
+        if (e.key.toLowerCase() === this.context.model.actionKey.toLowerCase()) this.showTitle();
+    }
+
+    titleCompleteOnKey(e) {
+        if (e.key.toLowerCase() === this.context.model.actionKey.toLowerCase()) this.titleComplete();
     }
 
     enter() {
         console.log("Entered title.");
-        document.addEventListener("click", this.showTitle)
+        document.addEventListener("click", this.showTitle);
+        document.addEventListener("keydown", this.showTitleOnKey);
 
         this.clickSprite = new Sprite(this.context, "titleClick", this.context.model.spriteScale);
         // this.clickSprite.showBounds = true;

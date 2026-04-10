@@ -9,6 +9,7 @@ export class Model {
     peopleOnCouch = [];
     spriteScale = 10;
     itemMoveDelayMult = 3;
+    actionKey = "b";
 
 
     //fast game

@@ -33,6 +33,10 @@ export class Game {
     isWaitingForSit = false;
     isWaitingForRestart = false;
 
+    presentationLabel = null;
+    presentationLabelY = 0;
+    pendingPresentation = null;
+
     //layers
     renderOrders = {
         background : 0,
@@ -219,6 +223,8 @@ export class Game {
         let peopleGap = this.context.model.spriteScale * 15;
         let peopleWaitingY = this.context.canvas.height - (this.peopleHeight * .6);
         
+        this.pendingPresentation = this.thingsYouCanSitOn[0];
+
         this.context.model.playRandomSound("ready", 1);
 
         //people get into waiting position
@@ -239,6 +245,11 @@ export class Game {
             person.hopTo(spotlightX, spotlightY, sec, 7);
             await this.context.toolbox.waitForMS(sec);
             person.setThink();
+
+            if (this.pendingPresentation) {
+                await this.presentSittable(this.pendingPresentation);
+                this.pendingPresentation = null;
+            }
 
             //rotate items through couch positions
             this.isWaitingForSit = true;
@@ -285,11 +296,12 @@ export class Game {
                 person.setSurprise();
                 person.shake(8, sec * 2);
                 this.explodeSittable(itemSatOn);
-                this.replaceExplodedSittable(itemSatOn);
+                const newSprite = this.replaceExplodedSittable(itemSatOn);
                 this.context.model.playSittableSound(idOfItemThatWasSatOn);
                 await this.context.toolbox.waitForMS(sec * 2);
                 person.setSit();
                 await this.pitchMusic(1, sec * 2);
+                this.pendingPresentation = newSprite;
 
             } else {
                 if(Math.random() > .5) {
@@ -348,7 +360,23 @@ export class Game {
         for(let i = 0; i < this.sprites.length; i++) {
             this.sprites[i].draw();
         }
+        if (this.presentationLabel) this.drawPresentationLabel();
         return this.command;
+    }
+
+    drawPresentationLabel() {
+        const pencil = this.context.pencil;
+        const x = this.context.canvas.width / 2;
+        pencil.save();
+        pencil.font = "28px 'Press Start 2P'";
+        pencil.textAlign = "center";
+        pencil.textBaseline = "top";
+        pencil.lineWidth = 6;
+        pencil.strokeStyle = "#000000";
+        pencil.fillStyle = "#ffffff";
+        pencil.strokeText(this.presentationLabel, x, this.presentationLabelY);
+        pencil.fillText(this.presentationLabel, x, this.presentationLabelY);
+        pencil.restore();
     }
 
     exit() {
@@ -361,6 +389,23 @@ export class Game {
         this.context.model.stopTitleMusic();
     }
 
+
+    async presentSittable(sprite) {
+        const name = this.context.model.sittableNames[sprite.currentImage.id];
+        if (!name) return;
+
+        const presentX = this.context.canvas.width / 2;
+        const presentY = this.context.canvas.height * 0.22;
+        sprite.setPosition(presentX, presentY);
+
+        this.presentationLabel = name;
+        this.presentationLabelY = presentY + sprite.height * 0.6 + 20;
+        this.context.model.playSound(['audio/presentItem.wav']);
+
+        await this.context.toolbox.waitForMS(1800);
+
+        this.presentationLabel = null;
+    }
 
     replaceExplodedSittable(explodedSittable) {
         this.sprites = this.sprites.filter(s => s !== explodedSittable);
@@ -376,6 +421,7 @@ export class Game {
 
         this.sprites.push(newSprite);
         this.sortSprites();
+        return newSprite;
     }
 
     explodeSittable(sittable) {

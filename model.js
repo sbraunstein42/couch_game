@@ -32,6 +32,8 @@ export class Model {
         "sittable_earth",
         "sittable_hamburger",
         "sittable_turtle",
+        "sittable_pasta",
+
     ])
 
     people = new Deck([
@@ -77,6 +79,15 @@ export class Model {
         "youWin4",
         "youWin5",
     ]
+
+    sittableNames = {
+        "sittable_cake":      "Cake",
+        "sittable_car":       "Car",
+        "sittable_earth":     "Earth",
+        "sittable_hamburger": "Hamburger",
+        "sittable_turtle":    "Turtle",
+        "sittable_pasta":     "Pasta",
+    }
 
     sittableSounds = {
         "sittable_cake":      ["audio/fart1.wav", "audio/fart2.wav", "audio/fart3.wav"],

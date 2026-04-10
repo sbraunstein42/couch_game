@@ -68,6 +68,10 @@ export class Game {
 
         this.isWaitingForSit = false;
 
+        for(let i = 0; i < this.context.model.howManySpotsOnCouch; i++) {
+            this.context.model.peopleOnCouch[i] = this.context.model.empty;
+        }
+
         if(!this.context.model.music) {
             this.context.model.playTitleMusic();
         }
@@ -87,7 +91,7 @@ export class Game {
         this.sittableWidth = this.thingsYouCanSitOn[0].width;
         this.sittableHeight = this.thingsYouCanSitOn[0].height;
 
-        const couchId = this.context.model.getRandomCouch();
+        const couchId = this.context.model.getNextCouch();
         this.couch = new Sprite(this.context, couchId, this.context.model.spriteScale)
         this.couch.renderOrder = this.renderOrders.couch;
         this.sprites.push(this.couch);
@@ -279,9 +283,10 @@ export class Game {
 
                 itemSatOn.shake(10, sec * 2);
                 person.setSurprise();
+                person.shake(8, sec * 2);
                 this.explodeSittable(itemSatOn);
                 this.replaceExplodedSittable(itemSatOn);
-                this.context.model.playRandomSound("fart", 3);
+                this.context.model.playSittableSound(idOfItemThatWasSatOn);
                 await this.context.toolbox.waitForMS(sec * 2);
                 person.setSit();
                 await this.pitchMusic(1, sec * 2);

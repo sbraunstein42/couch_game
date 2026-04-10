@@ -3,7 +3,7 @@ import { Deck } from "./helpers/deck.js";
 export class Model {
 
     //debug options
-    mute = true;
+    // mute = true;
 
     empty = "empty";
     peopleOnCouch = [];
@@ -42,9 +42,8 @@ export class Model {
         "blue"
     ]);
 
-    couches = new Deck([
-        "couch_orange"
-    ]);
+    couches = ["couch_orange", "couch_pink", "couch_red"];
+    couchIndex = 0;
 
     titleAnim = [
         "title1",
@@ -78,6 +77,15 @@ export class Model {
         "youWin4",
         "youWin5",
     ]
+
+    sittableSounds = {
+        "sittable_cake":      ["audio/fart1.wav", "audio/fart2.wav", "audio/fart3.wav"],
+        "sittable_pasta":     ["audio/fart1.wav", "audio/fart2.wav", "audio/fart3.wav"],
+        "sittable_hamburger": ["audio/fart1.wav", "audio/fart2.wav", "audio/fart3.wav"],
+        "sittable_car":       ["audio/bigExplode.wav"],
+        "sittable_earth":     ["audio/bigExplode.wav"],
+        "sittable_turtle":    ["audio/cuteExplode.wav"],
+    }
 
     sittablePieces = {
         "sittable_cake":      ["sittable_cake_1", "sittable_cake_2", "sittable_cake_3", "sittable_cake_4", "sittable_cake_5", "sittable_cake_6"],
@@ -134,8 +142,10 @@ export class Model {
         return this.sittablePieces[sittableId];
     }
 
-    getRandomCouch() {
-        return this.couches.take();
+    getNextCouch() {
+        const id = this.couches[this.couchIndex % this.couches.length];
+        this.couchIndex++;
+        return id;
     }
 
     playRandomSound(name, variantCount) {
@@ -202,6 +212,13 @@ export class Model {
             }
         }
         return emptyIndexes;
+    }
+
+    playSittableSound(sittableId) {
+        const sounds = this.sittableSounds[sittableId];
+        if (!sounds) return;
+        const src = sounds[Math.floor(Math.random() * sounds.length)];
+        return this.playSound([src]);
     }
 
     async playStaticSound(duration) {

@@ -27,47 +27,53 @@ export class Model {
     //constants:
     empty = "empty";
     spriteScale = 10;
+    
+
+    //sounds
+    fartNoises = ["audio/fart1.wav", "audio/fart2.wav", "audio/fart3.wav"];
+    cuteNoises = ["audio/cuteExplode.wav"];
+    explodeNoises = ["audio/bigExplode.wav"];
 
 
-    //ids of items that explode
+    //items that explode when sat on
     sittables = new Deck([
-        "sittable_cake",
-        "sittable_car",
-        "sittable_earth",
-        "sittable_hamburger",
-        "sittable_turtle",
-        "sittable_pasta",
+        {
+            id:     "sittable_cake",
+            name:   "Cake",
+            sounds: this.fartNoises,
+            pieces: 6,
+        },
+        {
+            id:     "sittable_car",
+            name:   "Car",
+            sounds: this.explodeNoises,
+            pieces: 5,
+        },
+        {
+            id:     "sittable_earth",
+            name:   "Earth",
+            sounds: this.explodeNoises,
+            pieces: 6,
+        },
+        {
+            id:     "sittable_hamburger",
+            name:   "Hamburger",
+            sounds: this.fartNoises,
+            pieces: 4,
+        },
+        {
+            id:     "sittable_turtle",
+            name:   "Turtle",
+            sounds: this.cuteNoises,
+            pieces: 4,
+        },
+        {
+            id:     "sittable_pasta",
+            name:   "Pasta",
+            sounds: this.fartNoises,
+            pieces: 6,
+        },
     ])
-
-    //sounds associated with the sittables
-    sittableSounds = {
-        "sittable_cake":      ["audio/fart1.wav", "audio/fart2.wav", "audio/fart3.wav"],
-        "sittable_pasta":     ["audio/fart1.wav", "audio/fart2.wav", "audio/fart3.wav"],
-        "sittable_hamburger": ["audio/fart1.wav", "audio/fart2.wav", "audio/fart3.wav"],
-        "sittable_car":       ["audio/bigExplode.wav"],
-        "sittable_earth":     ["audio/bigExplode.wav"],
-        "sittable_turtle":    ["audio/cuteExplode.wav"],
-    }
-
-    sittablePieces = {
-        "sittable_cake":      ["sittable_cake_1", "sittable_cake_2", "sittable_cake_3", "sittable_cake_4", "sittable_cake_5", "sittable_cake_6"],
-        "sittable_car":       ["sittable_car_1", "sittable_car_2", "sittable_car_3", "sittable_car_4", "sittable_car_5"],
-        "sittable_earth":     ["sittable_earth_1", "sittable_earth_2", "sittable_earth_3", "sittable_earth_4", "sittable_earth_5", "sittable_earth_6"],
-        "sittable_hamburger": ["sittable_hamburger_1", "sittable_hamburger_2", "sittable_hamburger_3", "sittable_hamburger_4"],
-        "sittable_pasta":     ["sittable_pasta_1", "sittable_pasta_2", "sittable_pasta_3", "sittable_pasta_4", "sittable_pasta_5", "sittable_pasta_6"],
-        "sittable_turtle":    ["sittable_turtle_1", "sittable_turtle_2", "sittable_turtle_3", "sittable_turtle_4"],
-    }
-
-
-    //english names of things you can sit on, for lookup
-    sittableNames = {
-        "sittable_cake":      "Cake",
-        "sittable_car":       "Car",
-        "sittable_earth":     "Earth",
-        "sittable_hamburger": "Hamburger",
-        "sittable_turtle":    "Turtle",
-        "sittable_pasta":     "Pasta",
-    }
 
     //ids of people
     people = new Deck([
@@ -138,6 +144,8 @@ export class Model {
         this.getEmptyIndexes = this.getEmptyIndexes.bind(this);
         this.playStaticSound = this.playStaticSound.bind(this);
         this.onEnteredGame = this.onEnteredGame.bind(this);
+        this.pitchMusic = this.pitchMusic.bind(this);
+
         
     }
 
@@ -178,8 +186,14 @@ export class Model {
         return this.people.takeMultiple(howMany);
     }
 
+    getSittableById(id) {
+        return this.sittables.items.find(s => s.id === id);
+    }
+
     getPiecesFor(sittableId) {
-        return this.sittablePieces[sittableId];
+        const sittable = this.getSittableById(sittableId);
+        if (!sittable) return undefined;
+        return Array.from({ length: sittable.pieces }, (_, i) => `${sittableId}_${i + 1}`);
     }
 
     getNextCouch() {
@@ -244,12 +258,13 @@ export class Model {
     }
 
     playSittableSound(sittableId) {
-        const sounds = this.sittableSounds[sittableId];
-        if (!sounds) return;
-        const src = sounds[Math.floor(Math.random() * sounds.length)];
+        const sittable = this.getSittableById(sittableId);
+        if (!sittable) return;
+        const src = sittable.sounds[Math.floor(Math.random() * sittable.sounds.length)];
         return this.playSound([src]);
     }
 
+    //don't like these async functions in the model, because it's async, but it's cleaner to have here
     async playStaticSound(duration) {
         this.playSound(['audio/click.wav']);
         let staticSound = this.playSound(['audio/static.mp3'], .5, true);
@@ -261,11 +276,22 @@ export class Model {
         staticSound?.stop();
     }
 
+      async pitchMusic(newPitch, duration) {
+      
+        if (!this.music || !this.music.playing(this.musicId)) return;
 
+        let currentPitch = this.music.rate(this.musicId);
+        const intervalMS = 50;
+        const steps = duration / intervalMS;
+        const rateStep = (newPitch - currentPitch) / steps;
 
+        for(let i = 0; i < steps; i++) {
+            await this.context.toolbox.waitForMS(intervalMS);
+            currentPitch += rateStep;
+            this.music.rate(currentPitch, this.musicId);
+        }
 
-    
-    
-
+        this.music.rate(currentPitch, this.musicId);
+    }
 
 }

@@ -59,9 +59,7 @@ export class Game {
         this.shiftItemsRoutine = this.shiftItemsRoutine.bind(this);
         this.shiftPeopleRoutine = this.shiftPeopleRoutine.bind(this);
         this.sortSprites = this.sortSprites.bind(this);
-        this.pitchMusic = this.pitchMusic.bind(this);
         this.goToTitle = this.goToTitle.bind(this);
-        this.onPlayerRequestedSitOnKey = this.onPlayerRequestedSitOnKey.bind(this);
         this.goToTitleOnKey = this.goToTitleOnKey.bind(this);
     }
 
@@ -82,7 +80,7 @@ export class Game {
 
         const sittableIds = this.context.model.getRandomSittables(this.context.model.howManyThingsOnCouch);
         for(let i = 0; i < sittableIds.length; i++) {
-            let id = sittableIds[i];
+            let id = sittableIds[i].id;
             let sprite = new HoppingSprite(this.context, id, this.context.model.spriteScale);
             // sprite.showBounds = true;
             sprite.setPosition(this.context.canvas.width/2, -100);
@@ -132,24 +130,24 @@ export class Game {
         }
 
         document.addEventListener("click", this.onPlayerRequestedSit);
-        document.addEventListener("keydown", this.onPlayerRequestedSitOnKey);
+        document.addEventListener("keydown", this.onPlayerRequestedSit);
 
         this.context.model.makeMusicQuiet();
 
+        //draw them in the right order
         this.sortSprites();
         this.gameRoutine();
-
-        
     }
 
-    onPlayerRequestedSit() {
+    onPlayerRequestedSit(e) {
+
+        let wrongKeyPressed = e.key !== undefined && e.key.toLowerCase() !== this.context.model.actionKey.toLowerCase();
+        if(wrongKeyPressed) return;
+
         this.isWaitingForSit = false;
     }
 
-    onPlayerRequestedSitOnKey(e) {
-        if (e.key.toLowerCase() === this.context.model.actionKey.toLowerCase()) this.onPlayerRequestedSit();
-    }
-
+    //move items across open spots in the couch, at sec speed
     async shiftItemsRoutine(sec) {
         let shifts = 0;
 
@@ -158,7 +156,6 @@ export class Game {
 
         let hopHeight = -30;
         let isLastSpot = false;
-
 
         if(emptyPositionsOnCouch.length == 1) {
             hopHeight = -100;
@@ -196,6 +193,7 @@ export class Game {
 
     }
 
+    //move people across open spots in the couch, at sec speed
     async shiftPeopleRoutine(person, sec) {
             
         let shifts = 0;
@@ -397,13 +395,13 @@ export class Game {
         }
         this.sprites = [];
         document.removeEventListener("click", this.onPlayerRequestedSit);
-        document.removeEventListener("keydown", this.onPlayerRequestedSitOnKey);
+        document.removeEventListener("keydown", this.onPlayerRequestedSit);
         this.context.model.stopTitleMusic();
     }
 
 
     async presentSittable(sprite) {
-        const name = this.context.model.sittableNames[sprite.currentImage.id];
+        const name = this.context.model.getSittableById(sprite.currentImage.id)?.name;
         if (!name) return;
 
         const presentX = this.context.canvas.width / 2;
@@ -422,8 +420,8 @@ export class Game {
     replaceExplodedSittable(explodedSittable) {
         this.sprites = this.sprites.filter(s => s !== explodedSittable);
 
-        const newId = this.context.model.sittables.take();
-        const newSprite = new HoppingSprite(this.context, newId, this.context.model.spriteScale);
+        const newSittable = this.context.model.sittables.take();
+        const newSprite = new HoppingSprite(this.context, newSittable.id, this.context.model.spriteScale);
         newSprite.setPosition(this.context.canvas.width / 2, -100);
         newSprite.renderOrder = this.renderOrders.itemOnCouch;
         newSprite.mute = true;
@@ -482,24 +480,7 @@ export class Game {
         });
     }
 
-    async pitchMusic(newPitch, duration) {
-        let music = this.context.model.music;
-        let musicId = this.context.model.musicId;
-        if (!music || !music.playing(musicId)) return;
-
-        let currentPitch = music.rate(musicId);
-        const intervalMS = 50;
-        const steps = duration / intervalMS;
-        const rateStep = (newPitch - currentPitch) / steps;
-
-        for(let i = 0; i < steps; i++) {
-            await this.context.toolbox.waitForMS(intervalMS);
-            currentPitch += rateStep;
-            music.rate(currentPitch, musicId);
-        }
-
-        music.rate(currentPitch, musicId);
-    }
+  
    
 
 

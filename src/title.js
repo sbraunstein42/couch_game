@@ -1,5 +1,5 @@
-import { Sprite } from "../helpers/sprite.js";
-import '../helpers/howler.min.js';
+import { Sprite } from "../stubble/sprite.js";
+import '../stubble/howler.min.js';
 
 export class Title {
 

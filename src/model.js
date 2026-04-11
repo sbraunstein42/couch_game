@@ -1,4 +1,4 @@
-import { Deck } from "./helpers/deck.js";
+import { Deck } from "../stubble/deck.js";
 
 export class Model {
 

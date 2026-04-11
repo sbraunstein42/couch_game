@@ -1,4 +1,4 @@
-import { HoppingSprite } from "./hoppingSprite.js";
+import { HoppingSprite } from "../../stubble/hoppingSprite.js";
 
 export class Person extends HoppingSprite {
 

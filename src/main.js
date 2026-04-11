@@ -1,6 +1,6 @@
-import { Game } from "./states/game.js";
-import { Title } from "./states/title.js";
-import { Toolbox } from "./helpers/toolbox.js";
+import { Game } from "./game.js";
+import { Title } from "./title.js";
+import { Toolbox } from "../stubble/toolbox.js";
 import { Model } from "./model.js";
 
 let canvas = document.getElementById("myCanvas");

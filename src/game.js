@@ -1,7 +1,7 @@
-import { Sprite } from "../helpers/sprite.js";
-import { HoppingSprite } from "../helpers/hoppingSprite.js";
-import { Person } from "../helpers/person.js";
-import * as TWEEN from "../helpers/tween.esm.js";
+import { Sprite } from "../stubble/sprite.js";
+import { HoppingSprite } from "../stubble/hoppingSprite.js";
+import { Explosion } from "../stubble/explosion.js";
+import { GameFactory } from "./game/gameFactory.js";
 
 export class Game {
 
@@ -64,77 +64,35 @@ export class Game {
     }
 
     enter() {
-        this.thingsYouCanSitOn = [];
-        this.people = [];
-        this.positionsOnCouch = [];
-        this.positionsBelowCouch = [];
         this.sprites = [];
-
         this.isWaitingForSit = false;
-
         this.context.model.onEnteredGame();
 
-        if(!this.context.model.music) {
+        if (!this.context.model.music) {
             this.context.model.playTitleMusic();
         }
 
-        const sittableIds = this.context.model.getRandomSittables(this.context.model.howManyThingsOnCouch);
-        for(let i = 0; i < sittableIds.length; i++) {
-            let id = sittableIds[i].id;
-            let sprite = new HoppingSprite(this.context, id, this.context.model.spriteScale);
-            // sprite.showBounds = true;
-            sprite.setPosition(this.context.canvas.width/2, -100);
-            sprite.renderOrder = this.renderOrders.itemOnCouch;
-            sprite.mute = true;
-            this.thingsYouCanSitOn.push(sprite);
-            this.sprites.push(sprite);
-        }
+        const factory = new GameFactory(this.context, this.renderOrders);
+
+        this.thingsYouCanSitOn = factory.makeSittables();
+        this.couch = factory.makeCouch();
+        this.people = factory.makePeople();
 
         this.sittableWidth = this.thingsYouCanSitOn[0].width;
         this.sittableHeight = this.thingsYouCanSitOn[0].height;
-
-        const couchId = this.context.model.getNextCouch();
-        this.couch = new Sprite(this.context, couchId, this.context.model.spriteScale)
-        this.couch.renderOrder = this.renderOrders.couch;
-        this.sprites.push(this.couch);
-        // this.couch.showBounds = true;
-        
-        const peopleIds = this.context.model.getRandomPeople(this.context.model.howManyContestants);
-        for(let i = 0; i < peopleIds.length; i++) {
-            let id = peopleIds[i];
-            let sprite = new Person(this.context, id, this.context.model.spriteScale);
-            sprite.setAnimations(id);
-            sprite.setIdle();
-            sprite.renderOrder = this.renderOrders.inFrontOfCouch;
-            // sprite.showBounds = true;
-            this.people.push(sprite);
-            this.sprites.push(sprite);
-        }
-
         this.peopleWidth = this.people[0].width;
         this.peopleHeight = this.people[0].height;
 
-        let middleX = this.context.canvas.width /2;
-        let middleY = this.context.canvas.height /2;
-        this.couch.setPosition(middleX, middleY);
+        const { positionsOnCouch, positionsBelowCouch } = factory.computeCouchPositions(this.couch, this.sittableHeight);
+        this.positionsOnCouch = positionsOnCouch;
+        this.positionsBelowCouch = positionsBelowCouch;
 
-        let couchBounds = this.couch.getBounds();
-        let onCouchY = couchBounds.y.max - (this.couch.height * .5) - (this.sittableHeight * .5)
-        let sittableGap = this.context.model.spriteScale * 12.25;
-        let currX = this.couch.x + (this.context.model.spriteScale * 1);
-
-        for(let i = 0; i < this.context.model.howManySpotsOnCouch; i++) {
-            currX += sittableGap;
-            this.positionsOnCouch.push({x : currX, y:onCouchY});
-            this.positionsBelowCouch.push({x : currX, y : onCouchY + 100})
-        }
+        this.sprites.push(...this.thingsYouCanSitOn, this.couch, ...this.people);
 
         document.addEventListener("click", this.onPlayerRequestedSit);
         document.addEventListener("keydown", this.onPlayerRequestedSit);
 
         this.context.model.makeMusicQuiet();
-
-        //draw them in the right order
         this.sortSprites();
         this.gameRoutine();
     }
@@ -437,47 +395,10 @@ export class Game {
     explodeSittable(sittable) {
         const pieceIds = this.context.model.getPiecesFor(sittable.currentImage.id);
         if (!pieceIds) return;
-
-        sittable.alpha = 0;
-
-        const cx = sittable.x + sittable.width / 2;
-        const cy = sittable.y + sittable.height / 2;
-        const durationMS = 1400;
-        const gravityPxPerSec2 = 600;
-        const fadeStartPhase = 0.5;
-
-        pieceIds.forEach((id, i) => {
-            const piece = new Sprite(this.context, id, this.context.model.spriteScale);
-            piece.setPivot(0.5, 0.5);
-            piece.setPosition(cx, cy);
-            piece.renderOrder = this.renderOrders.pieces;
-            this.sprites.push(piece);
-            this.sortSprites();
-
-            const angle = (Math.PI * 2 / pieceIds.length) * i + (Math.random() - 0.5) * 0.6;
-            const speed = this.context.toolbox.getRandomInRange(100, 300);
-            const vx = Math.cos(angle) * speed;
-            const vy = Math.sin(angle) * speed - 250; // bias upward
-            const targetRotation = (Math.random() - 0.5) * Math.PI * 0.6;
-            const startX = piece.x;
-            const startY = piece.y;
-
-            const state = { phase: 0 };
-            this.context.tweens.push(new TWEEN.Tween(state)
-                .to({ phase: 1 }, durationMS)
-                .onUpdate(() => {
-                    const t = state.phase * (durationMS / 1000);
-                    piece.x = startX + vx * t;
-                    piece.y = startY + vy * t + 0.5 * gravityPxPerSec2 * t * t;
-                    piece.rotation = targetRotation * state.phase;
-                    piece.alpha = state.phase < fadeStartPhase ? 1 : 1 - ((state.phase - fadeStartPhase) / (1 - fadeStartPhase));
-                })
-                .onComplete(() => {
-                    this.sprites = this.sprites.filter(s => s !== piece);
-                })
-                .start()
-            );
-        });
+        new Explosion(this.context, sittable, pieceIds, this.renderOrders.pieces, {
+            onAdd:    (piece) => { this.sprites.push(piece); this.sortSprites(); },
+            onRemove: (piece) => { this.sprites = this.sprites.filter(s => s !== piece); },
+        }).launch();
     }
 
   

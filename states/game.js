@@ -74,9 +74,7 @@ export class Game {
 
         this.isWaitingForSit = false;
 
-        for(let i = 0; i < this.context.model.howManySpotsOnCouch; i++) {
-            this.context.model.peopleOnCouch[i] = this.context.model.empty;
-        }
+        this.context.model.onEnteredGame();
 
         if(!this.context.model.music) {
             this.context.model.playTitleMusic();

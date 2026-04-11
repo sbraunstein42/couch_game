@@ -2,17 +2,12 @@ import { Deck } from "./helpers/deck.js";
 
 export class Model {
 
-    //debug options
+    //----------DEBUG_OPTIONS--------
     // mute = true;
-
-    empty = "empty";
-    peopleOnCouch = [];
-    spriteScale = 10;
     itemMoveDelayMult = 3;
-    actionKey = "b";
-
-
-    //fast game
+    actionKey = "b";    
+    
+    // uncomment for fast game
     // howManyContestants = 1;
     // howManyThingsOnCouch = 1;
     // howManySpotsOnCouch = 1;
@@ -21,22 +16,60 @@ export class Model {
     howManyContestants = 4;
     howManyThingsOnCouch = 1;
     howManySpotsOnCouch = 4;
+    //--------------------------------
 
+    //state
     toolbox;
     music;
+    peopleOnCouch;
+    couchIndex = 0;
+
+    //constants:
+    empty = "empty";
+    spriteScale = 10;
 
 
+    //ids of items that explode
     sittables = new Deck([
-        // "sittable_balloon",
         "sittable_cake",
         "sittable_car",
         "sittable_earth",
         "sittable_hamburger",
         "sittable_turtle",
         "sittable_pasta",
-
     ])
 
+    //sounds associated with the sittables
+    sittableSounds = {
+        "sittable_cake":      ["audio/fart1.wav", "audio/fart2.wav", "audio/fart3.wav"],
+        "sittable_pasta":     ["audio/fart1.wav", "audio/fart2.wav", "audio/fart3.wav"],
+        "sittable_hamburger": ["audio/fart1.wav", "audio/fart2.wav", "audio/fart3.wav"],
+        "sittable_car":       ["audio/bigExplode.wav"],
+        "sittable_earth":     ["audio/bigExplode.wav"],
+        "sittable_turtle":    ["audio/cuteExplode.wav"],
+    }
+
+    sittablePieces = {
+        "sittable_cake":      ["sittable_cake_1", "sittable_cake_2", "sittable_cake_3", "sittable_cake_4", "sittable_cake_5", "sittable_cake_6"],
+        "sittable_car":       ["sittable_car_1", "sittable_car_2", "sittable_car_3", "sittable_car_4", "sittable_car_5"],
+        "sittable_earth":     ["sittable_earth_1", "sittable_earth_2", "sittable_earth_3", "sittable_earth_4", "sittable_earth_5", "sittable_earth_6"],
+        "sittable_hamburger": ["sittable_hamburger_1", "sittable_hamburger_2", "sittable_hamburger_3", "sittable_hamburger_4"],
+        "sittable_pasta":     ["sittable_pasta_1", "sittable_pasta_2", "sittable_pasta_3", "sittable_pasta_4", "sittable_pasta_5", "sittable_pasta_6"],
+        "sittable_turtle":    ["sittable_turtle_1", "sittable_turtle_2", "sittable_turtle_3", "sittable_turtle_4"],
+    }
+
+
+    //english names of things you can sit on, for lookup
+    sittableNames = {
+        "sittable_cake":      "Cake",
+        "sittable_car":       "Car",
+        "sittable_earth":     "Earth",
+        "sittable_hamburger": "Hamburger",
+        "sittable_turtle":    "Turtle",
+        "sittable_pasta":     "Pasta",
+    }
+
+    //ids of people
     people = new Deck([
         "fish",
         "green",
@@ -45,15 +78,19 @@ export class Model {
         "blue"
     ]);
 
-    couches = ["couch_orange", "couch_pink", "couch_red"];
-    couchIndex = 0;
+    //ids of couches, advance through these as you play
+    couches = [
+        "couch_orange", 
+        "couch_pink", 
+        "couch_red"
+    ];
 
+    //animations
     titleAnim = [
         "title1",
         "title2",
         "title3",
         "title4",
-
     ];
 
     titleDecorateAnim = [
@@ -81,33 +118,6 @@ export class Model {
         "youWin5",
     ]
 
-    sittableNames = {
-        "sittable_cake":      "Cake",
-        "sittable_car":       "Car",
-        "sittable_earth":     "Earth",
-        "sittable_hamburger": "Hamburger",
-        "sittable_turtle":    "Turtle",
-        "sittable_pasta":     "Pasta",
-    }
-
-    sittableSounds = {
-        "sittable_cake":      ["audio/fart1.wav", "audio/fart2.wav", "audio/fart3.wav"],
-        "sittable_pasta":     ["audio/fart1.wav", "audio/fart2.wav", "audio/fart3.wav"],
-        "sittable_hamburger": ["audio/fart1.wav", "audio/fart2.wav", "audio/fart3.wav"],
-        "sittable_car":       ["audio/bigExplode.wav"],
-        "sittable_earth":     ["audio/bigExplode.wav"],
-        "sittable_turtle":    ["audio/cuteExplode.wav"],
-    }
-
-    sittablePieces = {
-        "sittable_cake":      ["sittable_cake_1", "sittable_cake_2", "sittable_cake_3", "sittable_cake_4", "sittable_cake_5", "sittable_cake_6"],
-        "sittable_car":       ["sittable_car_1", "sittable_car_2", "sittable_car_3", "sittable_car_4", "sittable_car_5"],
-        "sittable_earth":     ["sittable_earth_1", "sittable_earth_2", "sittable_earth_3", "sittable_earth_4", "sittable_earth_5", "sittable_earth_6"],
-        "sittable_hamburger": ["sittable_hamburger_1", "sittable_hamburger_2", "sittable_hamburger_3", "sittable_hamburger_4"],
-        "sittable_pasta":     ["sittable_pasta_1", "sittable_pasta_2", "sittable_pasta_3", "sittable_pasta_4", "sittable_pasta_5", "sittable_pasta_6"],
-        "sittable_turtle":    ["sittable_turtle_1", "sittable_turtle_2", "sittable_turtle_3", "sittable_turtle_4"],
-    }
-
     staticAnim = [
         "static1",
         "static2",
@@ -127,12 +137,30 @@ export class Model {
         this.makeMusicQuiet = this.makeMusicQuiet.bind(this);
         this.getEmptyIndexes = this.getEmptyIndexes.bind(this);
         this.playStaticSound = this.playStaticSound.bind(this);
+        this.onEnteredGame = this.onEnteredGame.bind(this);
+        
+    }
 
+    onEnteredGame() {
+        //populate couch array with "empty"
         this.peopleOnCouch = [];
         for(let i = 0; i < this.howManySpotsOnCouch; i++) {
             this.peopleOnCouch.push(this.empty);
         }
     }
+
+
+    //need an array of the indexes that are empty on the couch.
+    getEmptyIndexes() {
+        let emptyIndexes = [];
+        for(let i = 0; i < this.howManySpotsOnCouch; i++) {
+            if(this.isCouchSpotEmpty(i)) {
+                emptyIndexes.push(i);
+            }
+        }
+        return emptyIndexes;
+    }
+
 
     setPersonInCouchIndex(index, personId) {
         this.peopleOnCouch[index] = personId;
@@ -213,17 +241,6 @@ export class Model {
         if (!this.music) return;
         this.music.rate(1.0, this.musicId);
         this.music.play(this.musicId);
-    }
-
-    //need an array of the indexes that are empty on the couch.
-    getEmptyIndexes() {
-        let emptyIndexes = [];
-        for(let i = 0; i < this.howManySpotsOnCouch; i++) {
-            if(this.isCouchSpotEmpty(i)) {
-                emptyIndexes.push(i);
-            }
-        }
-        return emptyIndexes;
     }
 
     playSittableSound(sittableId) {

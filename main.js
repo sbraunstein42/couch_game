@@ -8,6 +8,7 @@ let lastTime = performance.now();
 let gameLoopId;
 let toolbox = new Toolbox();
 
+//context is a set of things that every class needs.
 let context = {
     canvas : canvas,
     pencil : canvas.getContext("2d"), 
@@ -29,6 +30,9 @@ let states = {
 //enter title
 let currentState = states.title;
 
+/* this game loop is running in a requestAnimationFrame loop
+and timestamp is important because it allows us to know deltaTimeMS,
+which is crucial for even-looking animation. */
 function gameLoop(timeStamp) {
     context.deltaTimeMS = timeStamp - lastTime;
     lastTime = timeStamp;
@@ -54,6 +58,8 @@ function gameLoop(timeStamp) {
 //start the game only when everything is loaded
 let startLoad = Date.now();
 
+/* we only start doing stuff after onload, otherwise we end up
+with a lot of half-loaded classes. */
 window.onload = function() {
     console.log("Loaded in " + (Date.now() - startLoad) + "ms.");
     currentState.enter();

@@ -32,14 +32,22 @@ export class Title {
         this.command = "game";
     }
 
-    enter() {
-        if (!this.context.sounds.music) this.context.sounds.playTitleMusic();
+    async enter() {
+        this.context.sounds.playTitleMusic();
 
-        let titleAnim = this.context.model.titleAnim;
-        this.titleAnim = new Sprite(this.context, titleAnim[0], this.context.model.spriteScale);
+        let titleAppearAnim = this.context.model.titleAnim;
+        this.titleAnim = new Sprite(this.context, titleAppearAnim[0], this.context.model.spriteScale);
         this.titleAnim.setPivot(0.5, 0.5);
         this.titleAnim.setPosition(this.middleX, this.middleY);
-        this.titleAnim.play(this.context.model.titleWiggleAnim, 6, -1);
+
+        this.context.sounds.playRandomSound("title", 6);
+        this.context.sounds.playTitleMusic();
+
+        let appearTime = this.titleAnim.play(titleAppearAnim, 1.5, 1);
+        await this.context.toolbox.waitForMS(appearTime);
+
+        let decorateTime = this.titleAnim.play(this.context.model.titleDecorateAnim, 6, 1);
+        await this.context.toolbox.waitForMS(decorateTime);
 
         document.addEventListener("click", this.titleComplete);
         document.addEventListener("keydown", this.titleComplete);

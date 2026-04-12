@@ -53,21 +53,6 @@ export class Splash {
         this.clickSprite = undefined;
 
         await this.playStatic(500);
-
-        let titleAppearAnim = this.context.model.titleAnim;
-        this.titleAnim = new Sprite(this.context, titleAppearAnim[0], this.context.model.spriteScale);
-        this.titleAnim.setPivot(0.5, 0.5);
-        this.titleAnim.setPosition(this.middleX, this.middleY);
-
-        this.context.sounds.playRandomSound("title", 6);
-        this.context.sounds.playTitleMusic();
-
-        let appearTime = this.titleAnim.play(titleAppearAnim, 1.5, 1);
-        await this.context.toolbox.waitForMS(appearTime);
-
-        let decorateTime = this.titleAnim.play(this.context.model.titleDecorateAnim, 6, 1);
-        await this.context.toolbox.waitForMS(decorateTime);
-
         this.command = "title";
     }
 

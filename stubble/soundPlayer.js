@@ -2,9 +2,15 @@ export class SoundPlayer {
 
     music;
     musicId;
+    musicHowl;
 
     constructor(toolbox) {
         this.toolbox = toolbox;
+        this.musicHowl = new Howl({
+            src: ['audio/music/spanish_flea.mp3'],
+            preload: true,
+            loop: true
+        });
     }
 
     playSound(src, volume, loop) {
@@ -21,16 +27,13 @@ export class SoundPlayer {
     }
 
     playTitleMusic() {
-        this.music = new Howl({
-            src: ['audio/music/spanish_flea.mp3'],
-            preload: true,
-            loop: true
-        });
-        this.music.volume(1);
-        this.musicId = this.music.play();
+        this.musicHowl.volume(1);
+        this.music = this.musicHowl;
+        this.musicId = this.musicHowl.play();
     }
 
     stopTitleMusic() {
+        if (!this.music) return;
         this.music.stop();
         this.music = undefined;
     }
@@ -56,10 +59,11 @@ export class SoundPlayer {
 
         for (let i = 0; i < steps; i++) {
             await this.toolbox.waitForMS(intervalMS);
+            if (!this.music) return;
             currentPitch += rateStep;
             this.music.rate(currentPitch, this.musicId);
         }
 
-        this.music.rate(currentPitch, this.musicId);
+        if (this.music) this.music.rate(currentPitch, this.musicId);
     }
 }

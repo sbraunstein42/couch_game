@@ -286,7 +286,7 @@ export class Model {
         const rateStep = (newPitch - currentPitch) / steps;
 
         for(let i = 0; i < steps; i++) {
-            await this.context.toolbox.waitForMS(intervalMS);
+            await this.toolbox.waitForMS(intervalMS);
             currentPitch += rateStep;
             this.music.rate(currentPitch, this.musicId);
         }

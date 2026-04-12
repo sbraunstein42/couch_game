@@ -18,6 +18,8 @@ export class Sprite {
     renderOrder = 0;
     rotation = 0;
     alpha = 1;
+    tint = null;
+    _tintCanvas = null;
 
 
 
@@ -58,6 +60,21 @@ export class Sprite {
 
     setSprite(id) {
         this.currentImage = document.getElementById(id);
+        this._tintCanvas = null;
+    }
+
+    _buildTintCanvas() {
+        const w = this.currentImage.naturalWidth;
+        const h = this.currentImage.naturalHeight;
+        const offscreen = document.createElement('canvas');
+        offscreen.width = w;
+        offscreen.height = h;
+        const ctx = offscreen.getContext('2d');
+        ctx.drawImage(this.currentImage, 0, 0);
+        ctx.globalCompositeOperation = 'source-atop';
+        ctx.fillStyle = this.tint;
+        ctx.fillRect(0, 0, w, h);
+        this._tintCanvas = offscreen;
     }
 
     setPivot(xPivotPhase, yPivotPhase) {
@@ -96,14 +113,18 @@ export class Sprite {
         pencil.save();
         pencil.globalAlpha = this.alpha;
 
+        const image = this.tint
+            ? (this._tintCanvas ?? (this._buildTintCanvas(), this._tintCanvas))
+            : this.currentImage;
+
         if (this.rotation !== 0) {
             const cx = this.x + this.width / 2;
             const cy = this.y + this.height / 2;
             pencil.translate(cx, cy);
             pencil.rotate(this.rotation);
-            pencil.drawImage(this.currentImage, -this.width / 2, -this.height / 2, this.width, this.height);
+            pencil.drawImage(image, -this.width / 2, -this.height / 2, this.width, this.height);
         } else {
-            pencil.drawImage(this.currentImage, this.x, this.y, this.width, this.height);
+            pencil.drawImage(image, this.x, this.y, this.width, this.height);
         }
 
         pencil.restore();

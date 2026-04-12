@@ -1,6 +1,7 @@
 import { Sprite } from "../stubble/sprite.js";
 import { HoppingSprite } from "../stubble/hoppingSprite.js";
 import { Explosion } from "../stubble/explosion.js";
+import { BalloonLaunch } from "../stubble/balloonLaunch.js";
 import { GameFactory } from "./game/gameFactory.js";
 
 export class Game {
@@ -28,6 +29,8 @@ export class Game {
     //state
     howManyPeopleSatDown = 0;
     personPositionIndex;
+    leftBalloons;
+    rightBalloons;
     itemsByIndex;
 
     isWaitingForSit = false;
@@ -46,7 +49,8 @@ export class Game {
         sittingOnCouch : 20,
         itemOnCouch : 30,
         inFrontOfCouch : 40,
-        pieces : 50
+        pieces : 50,
+        balloons : 60,
     }
 
 
@@ -238,7 +242,7 @@ export class Game {
 
             if(idOfItemThatWasSatOn) {
                 let itemSatOn = this.thingsYouCanSitOn.find(x => x.currentImage.id == idOfItemThatWasSatOn)
-                await this.pitchMusic(0, sec * 1.25);
+                await this.context.model.pitchMusic(0, sec * 1.25);
                 let r = Math.random();
                 let reactionSound = undefined;
                 if(r > .5) {
@@ -261,7 +265,7 @@ export class Game {
                 this.context.model.playSittableSound(idOfItemThatWasSatOn);
                 await this.context.toolbox.waitForMS(sec * 2);
                 person.setSit();
-                await this.pitchMusic(1, sec * 2);
+                await this.context.model.pitchMusic(1, sec * 2);
                 this.pendingPresentation = newSprite;
 
             } else {
@@ -299,6 +303,7 @@ export class Game {
         this.sprites.push(this.youWinAnim);
         this.sortSprites();
         this.context.model.playRandomSound("yay", 2);
+        this.launchBalloons();
         let youWinIntroTime = this.youWinAnim.play(winAnimIds, 4, 1);
         await this.context.toolbox.waitForMS(youWinIntroTime);
         this.youWinAnim.play(this.context.model.youWinWiggleAnim, 6, -1);
@@ -352,6 +357,8 @@ export class Game {
             this.sprites[i].stop();
         }
         this.sprites = [];
+        this.leftBalloons?.stop();
+        this.rightBalloons?.stop();
         document.removeEventListener("click", this.onPlayerRequestedSit);
         document.removeEventListener("keydown", this.onPlayerRequestedSit);
         this.context.model.stopTitleMusic();
@@ -399,6 +406,19 @@ export class Game {
             onAdd:    (piece) => { this.sprites.push(piece); this.sortSprites(); },
             onRemove: (piece) => { this.sprites = this.sprites.filter(s => s !== piece); },
         }).launch();
+    }
+
+    launchBalloons() {
+        const callbacks = {
+            onAdd:    (b) => { this.sprites.push(b); this.sortSprites(); },
+            onRemove: (b) => { this.sprites = this.sprites.filter(s => s !== b); },
+        };
+        const leftX  = this.context.canvas.width * 0.1;
+        const rightX = this.context.canvas.width * 0.9;
+        this.leftBalloons  = new BalloonLaunch(this.context, leftX,  this.renderOrders.balloons, callbacks);
+        this.rightBalloons = new BalloonLaunch(this.context, rightX, this.renderOrders.balloons, callbacks);
+        this.leftBalloons.start();
+        this.rightBalloons.start();
     }
 
   

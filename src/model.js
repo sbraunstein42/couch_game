@@ -133,6 +133,10 @@ export class Model {
     constructor(toolbox) {
 
         this.toolbox = toolbox;
+
+        // pre-load so there's no delay when the static effect fires
+        this.staticHowl = new Howl({ src: ['audio/static.mp3'], preload: true, loop: true });
+        this.clickHowl  = new Howl({ src: ['audio/click.wav'],  preload: true });
         
         this.setPersonInCouchIndex = this.setPersonInCouchIndex.bind(this);
         this.isCouchSpotEmpty = this.isCouchSpotEmpty.bind(this);
@@ -266,14 +270,16 @@ export class Model {
 
     //don't like these async functions in the model, because it's async, but it's cleaner to have here
     async playStaticSound(duration) {
-        this.playSound(['audio/click.wav']);
-        let staticSound = this.playSound(['audio/static.mp3'], .5, true);
+        if (this.mute) return;
+        this.clickHowl.play();
+        this.staticHowl.volume(0.5);
+        this.staticHowl.play();
         let delayBeforeClickOff = duration * .95;
         let delayBeforeStaticOff = duration * .05;
         await this.toolbox.waitForMS(delayBeforeClickOff);
-        this.playSound(['audio/click.wav']);
+        this.clickHowl.play();
         await this.toolbox.waitForMS(delayBeforeStaticOff);
-        staticSound?.stop();
+        this.staticHowl.stop();
     }
 
       async pitchMusic(newPitch, duration) {

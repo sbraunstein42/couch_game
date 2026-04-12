@@ -1,5 +1,6 @@
 import { Game } from "./game.js";
 import { Title } from "./title.js";
+import { Splash } from "./splash.js";
 import { Toolbox } from "../stubble/toolbox.js";
 import { Model } from "./model.js";
 
@@ -24,11 +25,12 @@ context.pencil.imageSmoothingEnabled = false;
 //make states
 let states = {
     game : new Game(context),
-    title : new Title(context)
+    title : new Title(context),
+    splash : new Splash(context),
 }
 
-//enter title
-let currentState = states.title;
+//enter splash on first load
+let currentState = states.splash;
 
 /* this game loop is running in a requestAnimationFrame loop
 and timestamp is important because it allows us to know deltaTimeMS,

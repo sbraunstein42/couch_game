@@ -134,7 +134,9 @@ export class Game {
 
                 let isGoingBehindCouch = isLastSpot && (shifts % 2 == 1);
 
-                this.itemsByIndex[posOnCouchIndex] = thing.currentImage.id;
+                if (!isGoingBehindCouch) {
+                    this.itemsByIndex[posOnCouchIndex] = thing.currentImage.id;
+                }
                 let posOnCouch = emptyPositionsOnCouch[posInEmptyArray];
                 let hopTime = sec * .5;
                 thing.hopHeight = hopHeight;

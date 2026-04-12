@@ -27,6 +27,7 @@ export class SoundPlayer {
     }
 
     playTitleMusic() {
+        this.musicHowl.stop();
         this.musicHowl.volume(1);
         this.music = this.musicHowl;
         this.musicId = this.musicHowl.play();

@@ -49,6 +49,8 @@ export class Title {
         let decorateTime = this.titleAnim.play(this.context.model.titleDecorateAnim, 6, 1);
         await this.context.toolbox.waitForMS(decorateTime);
 
+        this.titleAnim.play(this.context.model.titleWiggleAnim, 6, -1);
+
         document.addEventListener("click", this.titleComplete);
         document.addEventListener("keydown", this.titleComplete);
     }

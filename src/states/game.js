@@ -1,8 +1,8 @@
-import { Sprite } from "../stubble/sprite.js";
-import { HoppingSprite } from "../stubble/hoppingSprite.js";
-import { Explosion } from "../stubble/explosion.js";
-import { BalloonLaunch } from "../stubble/balloonLaunch.js";
-import { GameFactory } from "./game/gameFactory.js";
+import { Sprite } from "../../stubble/sprite.js";
+import { HoppingSprite } from "../../stubble/hoppingSprite.js";
+import { Explosion } from "../../stubble/explosion.js";
+import { BalloonLaunch } from "../../stubble/balloonLaunch.js";
+import { GameFactory } from "../game/gameFactory.js";
 
 export class Game {
 
@@ -72,8 +72,8 @@ export class Game {
         this.isWaitingForSit = false;
         this.context.model.onEnteredGame();
 
-        if (!this.context.model.music) {
-            this.context.model.playTitleMusic();
+        if (!this.context.sounds.music) {
+            this.context.sounds.playTitleMusic();
         }
 
         const factory = new GameFactory(this.context, this.renderOrders);
@@ -96,7 +96,7 @@ export class Game {
         document.addEventListener("click", this.onPlayerRequestedSit);
         document.addEventListener("keydown", this.onPlayerRequestedSit);
 
-        this.context.model.makeMusicQuiet();
+        this.context.sounds.makeMusicQuiet();
         this.sortSprites();
         this.gameRoutine();
     }
@@ -192,7 +192,7 @@ export class Game {
         
         this.pendingPresentation = this.thingsYouCanSitOn[0];
 
-        this.context.model.playRandomSound("ready", 1);
+        this.context.sounds.playRandomSound("ready", 1);
 
         //people get into waiting position
         for(let i = 0; i < this.people.length; i++) {
@@ -208,7 +208,7 @@ export class Game {
 
             //person gets in front of the couch
             let person = this.people[i];
-            if (i > 0) this.context.model.restartMusic();
+            if (i > 0) this.context.sounds.restartMusic();
             person.hopTo(spotlightX, spotlightY, sec, 7);
             await this.context.toolbox.waitForMS(sec);
             person.setThink();
@@ -244,15 +244,15 @@ export class Game {
 
             if(idOfItemThatWasSatOn) {
                 let itemSatOn = this.thingsYouCanSitOn.find(x => x.currentImage.id == idOfItemThatWasSatOn)
-                await this.context.model.pitchMusic(0, sec * 1.25);
+                await this.context.sounds.pitchMusic(0, sec * 1.25);
                 let r = Math.random();
                 let reactionSound = undefined;
                 if(r > .5) {
-                    reactionSound = this.context.model.playRandomSound("ohno", 4);
+                    reactionSound = this.context.sounds.playRandomSound("ohno", 4);
                 } else if(r > .3) {
-                    reactionSound = this.context.model.playRandomSound("whoops", 1);
+                    reactionSound = this.context.sounds.playRandomSound("whoops", 1);
                 } else {
-                    reactionSound = this.context.model.playRandomSound("inhale", 2);
+                    reactionSound = this.context.sounds.playRandomSound("inhale", 2);
                 }
 
                 sitDown(sec);
@@ -264,17 +264,17 @@ export class Game {
                 person.shake(8, sec * 2);
                 this.explodeSittable(itemSatOn);
                 const newSprite = this.replaceExplodedSittable(itemSatOn);
-                this.context.model.playSittableSound(idOfItemThatWasSatOn);
+                this.context.sounds.playSittableSound(idOfItemThatWasSatOn);
                 await this.context.toolbox.waitForMS(sec * 2);
                 person.setSit();
-                await this.context.model.pitchMusic(1, sec * 2);
+                await this.context.sounds.pitchMusic(1, sec * 2);
                 this.pendingPresentation = newSprite;
 
             } else {
                 if(Math.random() > .5) {
-                    this.context.model.playRandomSound("ooh", 2);
+                    this.context.sounds.playRandomSound("ooh", 2);
                 } else {
-                    this.context.model.playRandomSound("ahh", 2);
+                    this.context.sounds.playRandomSound("ahh", 2);
                 }
                 await sitDown(sec * .5);
             }
@@ -304,7 +304,7 @@ export class Game {
         this.youWinAnim.setPosition(middleX, middleY);
         this.sprites.push(this.youWinAnim);
         this.sortSprites();
-        this.context.model.playRandomSound("yay", 2);
+        this.context.sounds.playRandomSound("yay", 2);
         this.launchBalloons();
         let youWinIntroTime = this.youWinAnim.play(winAnimIds, 4, 1);
         await this.context.toolbox.waitForMS(youWinIntroTime);
@@ -363,7 +363,7 @@ export class Game {
         this.rightBalloons?.stop();
         document.removeEventListener("click", this.onPlayerRequestedSit);
         document.removeEventListener("keydown", this.onPlayerRequestedSit);
-        this.context.model.stopTitleMusic();
+        this.context.sounds.stopTitleMusic();
     }
 
 
@@ -377,7 +377,7 @@ export class Game {
 
         this.presentationLabel = name;
         this.presentationLabelY = presentY + sprite.height * 0.6 + 20;
-        this.context.model.playSound(['audio/presentItem.wav']);
+        this.context.sounds.playSound(['audio/presentItem.wav']);
 
         await this.context.toolbox.waitForMS(1800);
 
@@ -391,7 +391,6 @@ export class Game {
         const newSprite = new HoppingSprite(this.context, newSittable.id, this.context.model.spriteScale);
         newSprite.setPosition(this.context.canvas.width / 2, -100);
         newSprite.renderOrder = this.renderOrders.itemOnCouch;
-        newSprite.mute = true;
 
         const index = this.thingsYouCanSitOn.indexOf(explodedSittable);
         this.thingsYouCanSitOn[index] = newSprite;

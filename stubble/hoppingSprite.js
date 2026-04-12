@@ -7,7 +7,7 @@ export class HoppingSprite extends Sprite {
     hopHeight = -30;
     shakeOffsetX = 0;
     shakeOffsetY = 0;
-    mute = false;
+    onHop = null;
 
     
 
@@ -74,8 +74,7 @@ export class HoppingSprite extends Sprite {
                     this.x = hopXStart.x;
                 })
                 .onComplete(() => {
-                    if(!this.mute)
-                        this.context.model.playHopSound();
+                    if (this.onHop) this.onHop();
                 })
                 .start());
             

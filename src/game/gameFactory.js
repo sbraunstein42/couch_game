@@ -17,7 +17,6 @@ export class GameFactory {
             let sprite = new HoppingSprite(this.context, s.id, model.spriteScale);
             sprite.setPosition(canvas.width / 2, -100);
             sprite.renderOrder = this.renderOrders.itemOnCouch;
-            sprite.mute = true;
             return sprite;
         });
     }
@@ -33,11 +32,13 @@ export class GameFactory {
 
     makePeople() {
         let model = this.context.model;
+        let sounds = this.context.sounds;
         return model.getRandomPeople(model.howManyContestants).map(id => {
             let sprite = new Person(this.context, id, model.spriteScale);
             sprite.setAnimations(id);
             sprite.setIdle();
             sprite.renderOrder = this.renderOrders.inFrontOfCouch;
+            sprite.onHop = () => sounds.playHopSound();
             return sprite;
         });
     }

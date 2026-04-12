@@ -1,4 +1,4 @@
-import { Sprite } from "../stubble/sprite.js";
+import { Sprite } from "../../stubble/sprite.js";
 
 export class Title {
 
@@ -33,7 +33,7 @@ export class Title {
     }
 
     enter() {
-        if (!this.context.model.music) this.context.model.playTitleMusic();
+        if (!this.context.sounds.music) this.context.sounds.playTitleMusic();
 
         let titleAnim = this.context.model.titleAnim;
         this.titleAnim = new Sprite(this.context, titleAnim[0], this.context.model.spriteScale);

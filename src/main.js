@@ -1,8 +1,9 @@
-import { Game } from "./game.js";
-import { Title } from "./title.js";
-import { Splash } from "./splash.js";
+import { Game } from "./states/game.js";
+import { Title } from "./states/title.js";
+import { Splash } from "./states/splash.js";
 import { Toolbox } from "../stubble/toolbox.js";
 import { Model } from "./model.js";
+import { CouchSounds } from "./game/couchSounds.js";
 
 let canvas = document.getElementById("myCanvas");
 let lastTime = performance.now();
@@ -10,11 +11,13 @@ let gameLoopId;
 let toolbox = new Toolbox();
 
 //context is a set of things that every class needs.
+let model = new Model(toolbox);
 let context = {
     canvas : canvas,
-    pencil : canvas.getContext("2d"), 
+    pencil : canvas.getContext("2d"),
     toolbox : toolbox,
-    model : new Model(toolbox),
+    model : model,
+    sounds : new CouchSounds(toolbox, model),
     deltaTimeMS : 0,
     tweens : []
 }

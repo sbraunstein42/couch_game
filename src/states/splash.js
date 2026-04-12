@@ -1,5 +1,5 @@
-import { Sprite } from "../stubble/sprite.js";
-import '../stubble/howler.min.js';
+import { Sprite } from "../../stubble/sprite.js";
+import '../../stubble/howler.min.js';
 
 export class Splash {
 
@@ -39,7 +39,7 @@ export class Splash {
         this.staticSpriteRight.setPosition(this.middleX, this.middleY);
         this.staticSpriteRight.play(staticAnim, 30, -1);
 
-        await this.context.model.playStaticSound(duration);
+        await this.context.sounds.playStaticSound(duration);
         this.staticSpriteLeft = undefined;
         this.staticSpriteRight = undefined;
     }
@@ -59,8 +59,8 @@ export class Splash {
         this.titleAnim.setPivot(0.5, 0.5);
         this.titleAnim.setPosition(this.middleX, this.middleY);
 
-        this.context.model.playRandomSound("title", 6);
-        this.context.model.playTitleMusic();
+        this.context.sounds.playRandomSound("title", 6);
+        this.context.sounds.playTitleMusic();
 
         let appearTime = this.titleAnim.play(titleAppearAnim, 1.5, 1);
         await this.context.toolbox.waitForMS(appearTime);

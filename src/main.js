@@ -70,3 +70,24 @@ window.onload = function() {
     currentState.enter();
     gameLoopId = requestAnimationFrame(gameLoop);
 };
+
+let paused = false;
+
+function blockInputWhilePaused(e) {
+    if (paused) e.stopImmediatePropagation();
+}
+document.addEventListener("click",   blockInputWhilePaused, true);
+document.addEventListener("keydown", blockInputWhilePaused, true);
+
+document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+        paused = true;
+        cancelAnimationFrame(gameLoopId);
+        if (context.sounds.music) context.sounds.music.pause();
+    } else {
+        paused = false;
+        lastTime = performance.now();
+        gameLoopId = requestAnimationFrame(gameLoop);
+        if (context.sounds.music) context.sounds.music.play(context.sounds.musicId);
+    }
+});

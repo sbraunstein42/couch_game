@@ -6,7 +6,7 @@ export class Model {
 
     //----------DEBUG_OPTIONS--------
     itemMoveDelayMult = 3;
-    actionKey = "b";
+    actionKey = "F3";
 
     // uncomment for fast game
     // howManyContestants = 1;

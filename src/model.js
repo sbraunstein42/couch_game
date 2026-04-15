@@ -6,7 +6,7 @@ export class Model {
 
     //----------DEBUG_OPTIONS--------
     itemMoveDelayMult = 3;
-    actionKey = "F3";
+    actionKey = "r"; //r does nothing in photoshop
 
     // uncomment for fast game
     // howManyContestants = 1;

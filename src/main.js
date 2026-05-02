@@ -42,6 +42,8 @@ function gameLoop(timeStamp) {
     context.deltaTimeMS = timeStamp - lastTime;
     lastTime = timeStamp;
     context.pencil.clearRect(0,0, canvas.width, canvas.height);
+    context.pencil.fillStyle = 'white';
+    context.pencil.fillRect(0, 0, canvas.width, canvas.height);
     
     let command = currentState.update();
 

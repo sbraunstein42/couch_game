@@ -6,7 +6,7 @@ export class Model {
 
     //----------DEBUG_OPTIONS--------
     itemMoveDelayMult = 3;
-    actionKey = "r"; //r does nothing in photoshop
+    actionKey = "F8"; //F8 has no function in Mac PowerPoint presentation mode
 
     // uncomment for fast game
     // howManyContestants = 1;
@@ -179,6 +179,19 @@ export class Model {
 
     constructor(toolbox) {
         this.toolbox = toolbox;
+
+        // test mode: ?test in URL puts flower/turtle/egg first
+        if (new URLSearchParams(window.location.search).has('test')) {
+            console.log('[TEST MODE] Bee/turtle/egg prioritized.');
+            const priority = ['sittable_flower', 'sittable_turtle', 'sittable_egg'];
+            const front = priority
+                .map(id => this.sittables.items.find(s => s.id === id))
+                .filter(Boolean);
+            const rest = this.sittables.items.filter(s => !priority.includes(s.id));
+            this.sittables.items = [...front, ...rest];
+            this.sittables.nextIndex = 0;
+        }
+
         this.setPersonInCouchIndex = this.setPersonInCouchIndex.bind(this);
         this.isCouchSpotEmpty = this.isCouchSpotEmpty.bind(this);
         this.getEmptyIndexes = this.getEmptyIndexes.bind(this);

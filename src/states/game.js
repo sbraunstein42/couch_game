@@ -425,6 +425,23 @@ export class Game {
         const hasBees = specialPieceIds.some(id => specialPieces[id] === "bee");
         if (hasBees) this.context.sounds.playSound(['audio/cuteExplode.wav'], 0.4);
 
+        // pre-compute spread drifts for bees so they stay ≥45° apart
+        const beeIds = specialPieceIds.filter(id => specialPieces[id] === "bee");
+        const beeDrifts = (() => {
+            const minSep = 200; // px — ensures ~45° spread at typical speed
+            const maxDrift = 250;
+            const drifts = [];
+            for (let i = 0; i < beeIds.length; i++) {
+                let drift, attempts = 0;
+                do {
+                    drift = (Math.random() - 0.5) * 2 * maxDrift;
+                    attempts++;
+                } while (attempts < 100 && drifts.some(d => Math.abs(d - drift) < minSep));
+                drifts.push(drift);
+            }
+            return drifts;
+        })();
+
         for (const id of specialPieceIds) {
             const type = specialPieces[id];
 
@@ -434,7 +451,7 @@ export class Game {
                 bee.onDone = (b) => { this.sprites = this.sprites.filter(s => s !== b); };
                 this.sprites.push(bee);
                 this.sortSprites();
-                bee.launch(cx, cy);
+                bee.launch(cx, cy, beeDrifts[beeIds.indexOf(id)]);
 
             } else if (type === "floorWalker") {
                 const walker = new FloorWalker(this.context, id, this.context.model.spriteScale);

@@ -9,11 +9,11 @@ export class Bee extends Sprite {
         super(context, id, scale);
     }
 
-    launch(cx, cy) {
+    launch(cx, cy, horizontalDrift) {
         this.setPivot(0.5, 0.5);
         this.setPosition(cx, cy);
 
-        const horizontalDrift = (Math.random() - 0.5) * 350;
+        if (horizontalDrift === undefined) horizontalDrift = (Math.random() - 0.5) * 350;
         const upwardSpeed = 180 + Math.random() * 120;
         const circleRadius = 14;
         const circleFreq = 5;

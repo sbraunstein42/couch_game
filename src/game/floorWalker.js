@@ -58,16 +58,27 @@ export class FloorWalker extends Sprite {
     }
 
     _walk() {
-        const direction = Math.random() > 0.5 ? 1 : -1;
-        this.flipX = direction < 0;
-        const speed = 25 + Math.random() * 20;
-        const walkDistance = this.context.canvas.width * 1.5;
-        const walkDurationMS = (walkDistance / speed) * 1000;
-        const walkState = { x: this.x };
-        this.context.tweens.push(new TWEEN.Tween(walkState)
-            .to({ x: this.x + direction * walkDistance }, walkDurationMS)
-            .onUpdate(() => { this.x = walkState.x; })
-            .start()
-        );
+        const margin = this.width * 0.5;
+        const minX = margin;
+        const maxX = this.context.canvas.width - margin;
+
+        const walkNext = () => {
+            const speed = 70 + Math.random() * 50; // 70–120 px/s
+            const targetX = minX + Math.random() * (maxX - minX);
+            const direction = targetX > this.x ? 1 : -1;
+            this.flipX = direction > 0;
+            const dist = Math.abs(targetX - this.x);
+            const durationMS = (dist / speed) * 1000;
+            const walkState = { x: this.x };
+            this.context.tweens.push(
+                new TWEEN.Tween(walkState)
+                    .to({ x: targetX }, durationMS)
+                    .onUpdate(() => { this.x = walkState.x; })
+                    .onComplete(() => walkNext())
+                    .start()
+            );
+        };
+
+        walkNext();
     }
 }

@@ -3,6 +3,8 @@ import { HoppingSprite } from "../../stubble/hoppingSprite.js";
 import { Explosion } from "../../stubble/explosion.js";
 import { BalloonLaunch } from "../../stubble/balloonLaunch.js";
 import { GameFactory } from "../game/gameFactory.js";
+import { Bee } from "../game/bee.js";
+import { FloorWalker } from "../game/floorWalker.js";
 
 export class Game {
 
@@ -403,10 +405,49 @@ export class Game {
     explodeSittable(sittable) {
         const pieceIds = this.context.model.getPiecesFor(sittable.currentImage.id);
         if (!pieceIds) return;
-        new Explosion(this.context, sittable, pieceIds, this.renderOrders.pieces, {
-            onAdd:    (piece) => { this.sprites.push(piece); this.sortSprites(); },
-            onRemove: (piece) => { this.sprites = this.sprites.filter(s => s !== piece); },
-        }).launch();
+
+        const specialPieces = this.context.model.getSpecialPiecesFor(sittable.currentImage.id);
+        const normalPieceIds = pieceIds.filter(id => !specialPieces[id]);
+        const specialPieceIds = pieceIds.filter(id => specialPieces[id]);
+
+        const cx = sittable.x + sittable.width / 2;
+        const cy = sittable.y + sittable.height / 2;
+
+        if (normalPieceIds.length > 0) {
+            new Explosion(this.context, sittable, normalPieceIds, this.renderOrders.pieces, {
+                onAdd:    (piece) => { this.sprites.push(piece); this.sortSprites(); },
+                onRemove: (piece) => { this.sprites = this.sprites.filter(s => s !== piece); },
+            }).launch();
+        } else {
+            sittable.alpha = 0;
+        }
+
+        const hasBees = specialPieceIds.some(id => specialPieces[id] === "bee");
+        if (hasBees) this.context.sounds.playSound(['audio/cuteExplode.wav'], 0.4);
+
+        for (const id of specialPieceIds) {
+            const type = specialPieces[id];
+
+            if (type === "bee") {
+                const bee = new Bee(this.context, id, this.context.model.spriteScale);
+                bee.renderOrder = this.renderOrders.pieces;
+                bee.onDone = (b) => { this.sprites = this.sprites.filter(s => s !== b); };
+                this.sprites.push(bee);
+                this.sortSprites();
+                bee.launch(cx, cy);
+
+            } else if (type === "floorWalker") {
+                const walker = new FloorWalker(this.context, id, this.context.model.spriteScale);
+                walker.renderOrder = this.renderOrders.pieces;
+                walker.onLand = () => {
+                    walker.renderOrder = this.renderOrders.behindCouch;
+                    this.sortSprites();
+                };
+                this.sprites.push(walker);
+                this.sortSprites();
+                walker.launch(cx, cy);
+            }
+        }
     }
 
     launchBalloons() {

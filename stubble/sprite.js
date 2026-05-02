@@ -18,6 +18,7 @@ export class Sprite {
     renderOrder = 0;
     rotation = 0;
     alpha = 1;
+    flipX = false;
     tint = null;
     _tintCanvas = null;
 
@@ -117,11 +118,12 @@ export class Sprite {
             ? (this._tintCanvas ?? (this._buildTintCanvas(), this._tintCanvas))
             : this.currentImage;
 
-        if (this.rotation !== 0) {
+        if (this.rotation !== 0 || this.flipX) {
             const cx = this.x + this.width / 2;
             const cy = this.y + this.height / 2;
             pencil.translate(cx, cy);
-            pencil.rotate(this.rotation);
+            if (this.flipX) pencil.scale(-1, 1);
+            if (this.rotation !== 0) pencil.rotate(this.rotation);
             pencil.drawImage(image, -this.width / 2, -this.height / 2, this.width, this.height);
         } else {
             pencil.drawImage(image, this.x, this.y, this.width, this.height);

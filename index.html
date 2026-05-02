@@ -8,7 +8,7 @@
         <!-- page elements -->
         <div id="canvasWrapper">
             <canvas id="myCanvas" height="900" width="1600"></canvas>
-            <!-- <img id="tvFrame" src="./sprites/effects/tvframe.png"> -->
+            <img id="tvFrame" src="./sprites/effects/tvframe.png">
         </div>
 
         <!-- audio -->
@@ -114,6 +114,11 @@
         <img id = "blue_surprise" src="./sprites/people/blue/blue_surprise.png" hidden>
         <img id = "blue_think" src="./sprites/people/blue/blue_thinking.png" hidden>
 
+        <img id = "compost" src="./sprites/people/compost/compost.png" hidden>
+        <img id = "compost_sit" src="./sprites/people/compost/compost_sit.png" hidden>
+        <img id = "compost_surprise" src="./sprites/people/compost/compost_surprise.png" hidden>
+        <img id = "compost_think" src="./sprites/people/compost/compost_think.png" hidden>
+
         <img id = "sittable_cake" src="./sprites/sittables/cake.png" hidden>
         <img id = "sittable_cake_1" src="./sprites/sittables/pieces/cake/cake_1.png" hidden>
         <img id = "sittable_cake_2" src="./sprites/sittables/pieces/cake/cake_2.png" hidden>
@@ -156,6 +161,71 @@
         <img id = "sittable_turtle_2" src="./sprites/sittables/pieces/turtle/turtle_2.png" hidden>
         <img id = "sittable_turtle_3" src="./sprites/sittables/pieces/turtle/turtle_3.png" hidden>
         <img id = "sittable_turtle_4" src="./sprites/sittables/pieces/turtle/turtle_4.png" hidden>
+
+        <img id = "sittable_banana" src="./sprites/sittables/banana.png" hidden>
+        <img id = "sittable_banana_1" src="./sprites/sittables/pieces/banana/banana_1.png" hidden>
+        <img id = "sittable_banana_2" src="./sprites/sittables/pieces/banana/banana_2.png" hidden>
+        <img id = "sittable_banana_3" src="./sprites/sittables/pieces/banana/banana_3.png" hidden>
+
+        <img id = "sittable_cookie" src="./sprites/sittables/cookie.png" hidden>
+        <img id = "sittable_cookie_1" src="./sprites/sittables/pieces/cookie/cookie_1.png" hidden>
+        <img id = "sittable_cookie_2" src="./sprites/sittables/pieces/cookie/cookie_2.png" hidden>
+        <img id = "sittable_cookie_3" src="./sprites/sittables/pieces/cookie/cookie_3.png" hidden>
+        <img id = "sittable_cookie_4" src="./sprites/sittables/pieces/cookie/cookie_4.png" hidden>
+        <img id = "sittable_cookie_5" src="./sprites/sittables/pieces/cookie/cookie_5.png" hidden>
+        <img id = "sittable_cookie_6" src="./sprites/sittables/pieces/cookie/cookie_6.png" hidden>
+
+        <img id = "sittable_donut" src="./sprites/sittables/donut.png" hidden>
+        <img id = "sittable_donut_1" src="./sprites/sittables/pieces/donut/donut_1.png" hidden>
+        <img id = "sittable_donut_2" src="./sprites/sittables/pieces/donut/donut_2.png" hidden>
+        <img id = "sittable_donut_3" src="./sprites/sittables/pieces/donut/donut_3.png" hidden>
+        <img id = "sittable_donut_4" src="./sprites/sittables/pieces/donut/donut_4.png" hidden>
+        <img id = "sittable_donut_5" src="./sprites/sittables/pieces/donut/donut_5.png" hidden>
+
+        <img id = "sittable_egg" src="./sprites/sittables/egg.png" hidden>
+        <img id = "sittable_egg_1" src="./sprites/sittables/pieces/egg/egg_1.png" hidden>
+        <img id = "sittable_egg_2" src="./sprites/sittables/pieces/egg/egg_2.png" hidden>
+        <img id = "sittable_egg_3" src="./sprites/sittables/pieces/egg/egg_3.png" hidden>
+        <img id = "sittable_egg_4" src="./sprites/sittables/pieces/egg/egg_4.png" hidden>
+        <img id = "sittable_egg_5" src="./sprites/sittables/pieces/egg/egg_5.png" hidden>
+
+        <img id = "sittable_flower" src="./sprites/sittables/flower.png" hidden>
+        <img id = "sittable_flower_1" src="./sprites/sittables/pieces/flower/flower_1.png" hidden>
+        <img id = "sittable_flower_2" src="./sprites/sittables/pieces/flower/flower_2.png" hidden>
+        <img id = "sittable_flower_3" src="./sprites/sittables/pieces/flower/flower_3.png" hidden>
+        <img id = "sittable_flower_4" src="./sprites/sittables/pieces/flower/flower_4.png" hidden>
+        <img id = "sittable_flower_5" src="./sprites/sittables/pieces/flower/flower_5.png" hidden>
+        <img id = "sittable_flower_6" src="./sprites/sittables/pieces/flower/flower_6.png" hidden>
+
+        <img id = "sittable_rainbow" src="./sprites/sittables/rainbow.png" hidden>
+        <img id = "sittable_rainbow_1" src="./sprites/sittables/pieces/rainbow/rainbow_1.png" hidden>
+        <img id = "sittable_rainbow_2" src="./sprites/sittables/pieces/rainbow/rainbow_2.png" hidden>
+        <img id = "sittable_rainbow_3" src="./sprites/sittables/pieces/rainbow/rainbow_3.png" hidden>
+        <img id = "sittable_rainbow_4" src="./sprites/sittables/pieces/rainbow/rainbow_4.png" hidden>
+        <img id = "sittable_rainbow_5" src="./sprites/sittables/pieces/rainbow/rainbow_5.png" hidden>
+        <img id = "sittable_rainbow_6" src="./sprites/sittables/pieces/rainbow/rainbow_6.png" hidden>
+
+        <!-- zoom control -->
+        <div id="zoomControl">
+            <label for="zoomSlider">Zoom</label>
+            <input type="range" id="zoomSlider" min="0.5" max="1.5" step="0.01" value="1">
+            <span id="zoomLabel">1.00×</span>
+        </div>
+        <script>
+            const slider    = document.getElementById('zoomSlider');
+            const zoomLabel = document.getElementById('zoomLabel');
+            const canvas    = document.getElementById('myCanvas');
+            const stored    = localStorage.getItem('couchGameZoom');
+            if (stored) slider.value = stored;
+            function applyZoom() {
+                const v = parseFloat(slider.value);
+                canvas.style.transform = `scale(${v})`;
+                zoomLabel.textContent = v.toFixed(2) + '×';
+                localStorage.setItem('couchGameZoom', v);
+            }
+            applyZoom();
+            slider.addEventListener('input', applyZoom);
+        </script>
 
         <!-- plugins -->
         <script type="module" src="stubble/tween.esm.js"></script>

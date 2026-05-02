@@ -64,11 +64,59 @@ export class Model {
             name:   "Turtle",
             sounds: this.cuteNoises,
             pieces: 4,
+            pieceTypes: {
+                "sittable_turtle_1": "floorWalker",
+                "sittable_turtle_2": "floorWalker",
+                "sittable_turtle_3": "floorWalker",
+            },
         },
         {
             id:     "sittable_pasta",
             name:   "Pasta",
             sounds: this.fartNoises,
+            pieces: 6,
+        },
+        {
+            id:     "sittable_banana",
+            name:   "Banana",
+            sounds: this.fartNoises,
+            pieces: 3,
+        },
+        {
+            id:     "sittable_cookie",
+            name:   "Cookie",
+            sounds: this.fartNoises,
+            pieces: 6,
+        },
+        {
+            id:     "sittable_donut",
+            name:   "Donut",
+            sounds: this.fartNoises,
+            pieces: 5,
+        },
+        {
+            id:     "sittable_egg",
+            name:   "Egg",
+            sounds: this.cuteNoises,
+            pieces: 5,
+            pieceTypes: {
+                "sittable_egg_1": "floorWalker",
+            },
+        },
+        {
+            id:     "sittable_flower",
+            name:   "Flower",
+            sounds: this.cuteNoises,
+            pieces: 6,
+            pieceTypes: {
+                "sittable_flower_1": "bee",
+                "sittable_flower_2": "bee",
+            },
+        },
+        {
+            id:     "sittable_rainbow",
+            name:   "Rainbow",
+            sounds: this.cuteNoises,
             pieces: 6,
         },
     ])
@@ -79,7 +127,8 @@ export class Model {
         "green",
         "pink",
         "robot",
-        "blue"
+        "blue",
+        "compost",
     ]);
 
     //ids of couches, advance through these as you play
@@ -178,6 +227,11 @@ export class Model {
         let sittable = this.getSittableById(sittableId);
         if (!sittable) return undefined;
         return Array.from({ length: sittable.pieces }, (_, i) => `${sittableId}_${i + 1}`);
+    }
+
+    getSpecialPiecesFor(sittableId) {
+        let sittable = this.getSittableById(sittableId);
+        return sittable?.pieceTypes ?? {};
     }
 
     getNextCouch() {
